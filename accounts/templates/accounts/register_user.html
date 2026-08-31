@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register New User</title>
+
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/register.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+
+<div class="register-wrapper">
+
+    <div class="register-card">
+        <h2>Register Account</h2>
+        <p class="subtitle">Create a new user for the system</p>
+
+        {% for message in messages %}
+            <p class="error-msg">{{ message }}</p>
+        {% endfor %}
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <div class="input-group">
+                <i class="fa fa-user"></i>
+                <input type="text" class="form-control" name="full_name" placeholder="Full Name" required>
+            </div>
+
+            <div class="input-group">
+                <i class="fa fa-user-circle"></i>
+                <input type="text" class="form-control" name="username" placeholder="Username" required>
+            </div>
+
+            <div class="input-group">
+                <i class="fa fa-lock"></i>
+                <input type="password" class="form-control" name="password" placeholder="Password" required>
+            </div>
+
+            <div class="input-group">
+                <i class="fa fa-lock"></i>
+                <input type="password" class="form-control" name="confirm_password" placeholder="Confirm Password" required>
+            </div>
+
+            <div class="input-group">
+                <i class="fa fa-briefcase"></i>
+                <select class="form-control" name="bidang" required>
+                    <option value="">-- Choose Surgical Field --</option>
+                    <option>GENERAL SURGERY</option>
+                    <option>GENERAL SURGERY UPPER Gastrointestinal</option>
+                    <option>GENERAL SURGERY COLORECTAL</option>
+                    <option>GENERAL SURGERY BREAST AND ENDOCRINE</option>
+                    <option>GENERAL SURGERY VASCULAR</option>
+                    <option>GENERAL SURGERY HEPATOBILIARY</option>
+                    <option>GENERAL SURGERY THORACIC</option>
+                    <option>GENERAL SURGERY TRAUMA</option>
+                    <option>ANAESTHESIA</option>
+                    <option>ORTHOPAEDIC</option>
+                    <option>NEUROSURGERY</option>
+                    <option>UROLOGY</option>
+                    <option>PAEDIATRIC SURGERY</option>
+                    <option>CARDIOTHORACIC SURGERY</option>
+                    <option>OBSTETRICS & GYNAECOLOGY</option>
+                    <option>OPHTHALMOLOGY</option>
+                    <option>OTORHINOLARYNGOLOGY</option>
+                    <option>PLASTIC AND RECONSTRUCTIVE SURGERY</option>
+                    <option>EMERGENCY AND TRAUMA</option>
+                    <option>ORAL MAXILLOFACIAL SURGERY</option>
+                    <option>PUBLIC HEALTH</option>
+                    <option>FAMILY MEDICINE</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn-register">Register</button>
+        </form>
+
+<div class="link-group">
+    <a href="{% url 'fraternity' %}" class="back-link">← Go to Fraternity</a>
+    <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
+</div>
+    </div>
+
+</div>
+
+</body>
+</html>

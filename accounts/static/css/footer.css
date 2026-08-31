@@ -1,0 +1,38 @@
+/* 🌊 Footer - gaya kaca biru sepadan dengan header */
+footer {
+  background: linear-gradient(135deg, rgba(0, 102, 255, 0.25), rgba(0, 204, 255, 0.15));
+  backdrop-filter: blur(15px) saturate(180%);
+  -webkit-backdrop-filter: blur(15px) saturate(180%);
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  color: #000000; /* Font hitam, sama macam header */
+  padding: 40px 0;
+  text-align: center;
+  margin-top: 50px;
+  box-shadow:
+    0 -8px 32px 0 rgba(0, 123, 255, 0.37),
+    inset 0 0 20px rgba(255, 255, 255, 0.05);
+}
+
+/* Teks footer */
+footer p {
+  margin-bottom: 10px;
+  font-family: 'Arial', sans-serif;
+  font-weight: bold;
+  color: #000000;
+}
+
+/* Pautan footer */
+footer a {
+  color: #000000;
+  font-weight: bold;
+  text-decoration: none;
+  margin: 0 10px;
+  transition: all 0.3s ease;
+}
+
+/* Hover effect pada pautan */
+footer a:hover {
+  color: #0056b3; /* Biru lebih gelap semasa hover */
+  text-decoration: underline;
+  text-shadow: 0 0 6px rgba(0, 102, 255, 0.6);
+}

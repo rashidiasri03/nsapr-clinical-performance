@@ -1,0 +1,174 @@
+/* ===== Background ===== */
+body {
+  background: url('/static/images/background/bg-4.png')
+    no-repeat center center fixed;
+  background-size: cover;
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  height: 100vh;
+  /* removed opacity so children are not translucent */
+  position: relative;
+}
+
+/* add a dim overlay behind the card but above the background */
+.register-wrapper {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  position: relative; /* needed for the overlay */
+  z-index: 1;
+}
+
+.register-wrapper::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.25); /* adjust darkness */
+  z-index: 0;
+}
+
+/* ===== Center Wrapper ===== */
+.register-wrapper {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  position: relative; /* needed for the overlay */
+  z-index: 1;
+}
+
+/* ===== Register Card ===== */
+.register-card {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 430px;
+  background: #f5f5f5; /* matte solid color */
+  border-radius: 20px;
+  box-shadow: 0 10px 35px rgba(0,0,0,0.15);
+  padding: 2.3rem 2rem;
+  text-align: center;
+}
+
+/* ===== Title ===== */
+.register-card h2 {
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.subtitle {
+  color: #6c757d;
+  margin-bottom: 20px;
+}
+
+/* ===== Input Group (With Icons) ===== */
+.input-group {
+  position: relative;
+  margin-bottom: 18px;
+}
+
+.input-group i {
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  transform: translateY(-50%);
+  color: #777;
+  font-size: 17px;
+}
+
+.form-control {
+  width: 100%;
+  padding: 14px 14px 14px 40px;
+  border-radius: 12px;
+  border: 1px solid #d1d1d1;
+  box-sizing: border-box;
+  font-size: 14px;
+}
+
+.form-control:focus {
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 0.15rem rgba(80, 150, 255, 0.3);
+  outline: none;
+}
+
+/* ===== Select ===== */
+select.form-control {
+  appearance: none;
+  background-color: white;
+}
+
+/* ===== Button ===== */
+.btn-register {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(90deg, #000, #444);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+  margin-top: 10px;
+}
+
+.btn-register:hover {
+  background: linear-gradient(90deg, #333, #000);
+  transform: translateY(-1.5px);
+}
+
+/* ===== Error Message ===== */
+.error-msg {
+  color: red;
+  margin-bottom: 10px;
+  font-size: 0.9rem;
+}
+
+/* ===== Link Group ===== */
+.register-card .link-group {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+/* Back to Fraternity as outline button */
+.back-link {
+  display: inline-block;
+  padding: 10px 18px;
+  border: 2px solid #4a90e2;
+  border-radius: 12px;
+  background: transparent;
+  color: #4a90e2;
+  font-weight: 500;
+  font-size: 14px;
+  text-decoration: none;
+  transition: 0.3s;
+}
+
+.back-link:hover {
+  background: #4a90e2;
+  color: white;
+  transform: translateY(-1px);
+}
+
+/* Logout as solid button */
+.logout-btn {
+  display: inline-block;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 12px;
+  background: #e74c3c;
+  color: white;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: 0.3s;
+}
+
+.logout-btn:hover {
+  background: #c0392b;
+  transform: translateY(-1px);
+}

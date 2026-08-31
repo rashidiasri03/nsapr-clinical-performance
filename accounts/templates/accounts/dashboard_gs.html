@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>General Surgery Dashboard</title>
+  {% load static %}
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Modern Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+<div class="container dashboard-container">
+
+<!-- HEADER CARD -->
+<div class="header-card animate-fade mb-4">
+  <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+
+    <div>
+      <h2 class="dashboard-title mb-1">
+        General Surgery — Dashboard
+      </h2>
+      <div class="dashboard-subtitle">
+        Performance Summary & SAOI Indicators
+      </div>
+    </div>
+
+    <div class="text-end">
+      <small class="filter-hint">Filter: Year & Period</small>
+
+      <div class="d-flex gap-2 justify-content-end mt-2">
+        <button class="btn-theme" onclick="toggleTheme()">
+          🌙 Dark
+        </button>
+        <a class="btn-back" href="{% url 'general_surgery' %}">
+          ← Back
+        </a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- FILTER SECTION -->
+<div class="filter-box shadow-sm p-3 mb-4">
+<form id="filterForm" class="row g-3 align-items-center">
+    <div class="col-md-3">
+      <label class="form-label fw-semibold">Year</label>
+      <select id="yearSelect" class="form-select modern-select">
+        {% for y in years %}
+          <option value="{{ y }}" {% if y == selected_year %}selected{% endif %}>{{ y }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="col-md-3">
+      <label class="form-label fw-semibold">Period</label>
+      <select id="periodSelect" class="form-select modern-select">
+        <option value="Jan-Jun" {% if selected_period == "Jan-Jun" %}selected{% endif %}>Jan-Jun</option>
+        <option value="Jul-Dec" {% if selected_period == "Jul-Dec" %}selected{% endif %}>Jul-Dec</option>
+      </select>
+    </div>
+</form>
+</div>
+
+
+<!-- ========================================== -->
+<!-- GAUGE CHARTS (Structure / Process / Outcome) -->
+<!-- ========================================== -->
+
+<div class="row g-4 text-center mb-4">
+
+  <div class="col-md-3">
+    <div class="chart-card shadow-sm">
+      <h6>Structure</h6>
+      <canvas id="gaugeStructure" height="150"></canvas>
+      <div class="gauge-label">{{ total_structure_raw|floatformat:2 }}</div>
+      <small class="text-muted">(Max: 1.00)</small>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="chart-card shadow-sm">
+      <h6>Process</h6>
+      <canvas id="gaugeProcess" height="150"></canvas>
+      <div class="gauge-label">{{ total_process_raw|floatformat:2 }}</div>
+      <small class="text-muted">(Max: 1.00)</small>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="chart-card shadow-sm">
+      <h6>Outcome</h6>
+      <canvas id="gaugeOutcome" height="150"></canvas>
+      <div class="gauge-label">{{ total_outcome_raw|floatformat:2 }}</div>
+      <small class="text-muted">(Max: 1.00)</small>
+    </div>
+  </div>
+
+  <!-- OVERALL RING -->
+  <div class="col-md-3">
+    <div class="chart-card shadow-sm">
+      <h6>Overall SAOI Index</h6>
+      <canvas id="overallRing" height="170"></canvas>
+      <div class="gauge-label">{{ overall_index|floatformat:2 }}</div>
+    </div>
+  </div>
+
+</div>
+
+
+<!-- LEGEND -->
+<div class="legend-box text-center mb-4">
+  <span class="legend-item" style="background:#1abc9c;">> 0.80 Optimised</span>
+  <span class="legend-item" style="background:#2ecc71;">0.60 – 0.79 Good</span>
+  <span class="legend-item" style="background:#f1c40f;">0.40 – 0.59 Moderate</span>
+  <span class="legend-item" style="background:#e74c3c;">< 0.40 Underperforming</span>
+</div>
+
+
+
+<!-- BAR CHART -->
+<!--<div class="chart-card shadow-sm mb-4 p-3">
+  <h6>Weighted Score per Domain</h6>
+  <canvas id="barChart" height="120", borderColor= "#38bdf8",borderWidth= 1,
+></canvas>
+</div>-->
+
+
+<!-- TABLE -->
+<div class="card p-3 shadow-sm mt-4">
+    <h5 class="fw-bold mb-3">Detailed Domain Breakdown</h5>
+
+    <div class="table-responsive">
+      <table class="table table-hover table-striped align-middle modern-table">
+        <thead>
+          <tr>
+            <th>Category</th>
+            <th>Domain</th>
+            <th>Performances</th>
+            <th>Target</th>
+            <th>Weight</th>
+            <th>Score (%)</th>
+            <th>Weighted Score</th>
+            <th>Index</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for row in domain_rows %}
+          <tr>
+            <td>{{ row.category }}</td>
+            <td>{{ row.domain }}</td>
+            <td>{{ row.performances_value }}</td>
+            <td>{{ row.target }}</td>
+            <td>{{ row.weight }}</td>
+            <td>{{ row.score }}</td>
+            <td>{{ row.weighted_score }}</td>
+            <td>{{ row.index }}</td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="8" class="text-center py-3">No data for selected year/period.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+
+      </table>
+    </div>
+</div>
+
+
+
+<!-- ===================== -->
+<!-- JAVASCRIPT + CHART.JS -->
+<!-- ===================== -->
+<script>
+/* AUTO FILTER */
+function applyFilter() {
+  const y = document.getElementById('yearSelect').value;
+  const p = document.getElementById('periodSelect').value;
+  const params = new URLSearchParams(window.location.search);
+  params.set('year', y);
+  params.set('period', p);
+  window.location.search = params.toString();
+}
+document.getElementById('yearSelect').addEventListener('change', applyFilter);
+document.getElementById('periodSelect').addEventListener('change', applyFilter);
+
+
+/* DATA INSERT */
+const totalStructure = parseFloat("{{ total_structure_raw|floatformat:2 }}") || 0;
+const totalProcess   = parseFloat("{{ total_process_raw|floatformat:2 }}") || 0;
+const totalOutcome   = parseFloat("{{ total_outcome_raw|floatformat:2 }}") || 0;
+const overallIndex   = parseFloat("{{ overall_index|floatformat:2 }}") || 0;
+
+const MAX_VALUE = 1.0;
+
+const normalizedStructure = Math.min(totalStructure / MAX_VALUE, 1.0);
+const normalizedProcess = Math.min(totalProcess / MAX_VALUE, 1.0);
+const normalizedOutcome = Math.min(totalOutcome / MAX_VALUE, 1.0);
+const normalizedOverall = Math.min(overallIndex / MAX_VALUE, 1.0);
+
+
+
+/********************************************************
+ GAUGE NEEDLE PLUGIN
+********************************************************/
+const gaugeNeedle = {
+    id: "gaugeNeedle",
+    afterDraw(chart) {
+        const { ctx } = chart;
+        const value = chart.config.options.plugins.gaugeNeedle.value;
+
+        const meta = chart.getDatasetMeta(0);
+        const cx = meta.data[0].x;
+        const cy = meta.data[0].y;
+
+        const angle = (-90 + value * 180) * Math.PI / 180;
+
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(angle);
+
+        ctx.beginPath();
+        ctx.moveTo(0, 10);
+        ctx.lineTo(0, -65);
+        ctx.lineWidth = 4;
+        ctx.strokeStyle = "#222";
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(0, 0, 8, 0, Math.PI * 2);
+        ctx.fillStyle = "#222";
+        ctx.fill();
+
+        ctx.restore();
+    }
+};
+
+
+/********************************************************
+ CREATE GAUGE
+********************************************************/
+function createGauge(id, value) {
+    new Chart(document.getElementById(id), {
+        type: "doughnut",
+        plugins: [gaugeNeedle],
+        data: {
+            datasets: [{
+                data: [0.4, 0.19, 0.20, 0.21],
+                backgroundColor: ["#e74c3c", "#f1c40f", "#2ecc71", "#1abc9c"],
+                borderWidth: 0,
+                rotation: -90,
+                circumference: 180
+            }]
+        },
+        options: {
+            cutout: "70%",
+            plugins: {
+                legend: { display: false },
+                tooltip: { enabled: false },
+                gaugeNeedle: { value: value }
+            }
+        }
+    });
+}
+
+createGauge("gaugeStructure", totalStructure);
+createGauge("gaugeProcess", totalProcess);
+createGauge("gaugeOutcome", totalOutcome);
+
+
+
+/********************************************************
+ RING FOR SAOI OVERALL INDEX
+********************************************************/
+function getColor(value) {
+    if (value > 0.80) return "#1abc9c";
+    if (value >= 0.60) return "#2ecc71";
+    if (value >= 0.40) return "#f1c40f";
+    return "#e74c3c";
+}
+
+new Chart(document.getElementById("overallRing"), {
+    type: "doughnut",
+    data: {
+        datasets: [{
+            data: [overallIndex, 1 - overallIndex],
+            backgroundColor: [getColor(overallIndex), "#e0e0e0"],
+            borderWidth: 0,
+            cutout: "75%"
+        }]
+    },
+    options: {
+        plugins: {
+            legend: { display: false },
+            tooltip: { enabled: false }
+        }
+    }
+});
+
+
+
+/********************************************************
+ BAR CHART
+********************************************************/
+new Chart(document.getElementById("barChart"), {
+    type: "bar",
+    data: {
+        labels: barLabels,
+        datasets: [{
+            label: "Weighted Score",
+            data: barValues,
+            backgroundColor: "#2563eb",
+            borderRadius: 6
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: { beginAtZero: true }
+        },
+        plugins: {
+            legend: { display: false }
+        }
+    }
+});
+
+function toggleTheme() {
+  document.body.classList.toggle("dark");
+}
+</script>
+
+</div>
+</body>
+</html>

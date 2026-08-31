@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <title>Login</title>
+
+    <!-- Link CSS -->
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+<div class="login-wrapper">
+
+    <div class="login-card">
+
+        <div class="login-icon">
+            <img src="https://cdn-icons-png.flaticon.com/512/747/747376.png" alt="icon">
+        </div>
+
+        <h2>Welcome</h2>
+        <p class="subtitle">Sign in to continue</p>
+
+        {% if messages %}
+            {% for message in messages %}
+                <p style="color:red; font-size:0.9rem;">{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+
+<form method="POST">
+    {% csrf_token %}
+
+    {% if messages %}
+      {% for message in messages %}
+        <p class="error-msg">{{ message }}</p>
+      {% endfor %}
+    {% endif %}
+
+    <div class="input-group">
+        <i class="fa fa-user"></i>
+        <input type="text" class="form-control" name="username" placeholder="Username">
+    </div>
+
+    <div class="input-group">
+        <i class="fa fa-lock"></i>
+        <input type="password" class="form-control" name="password" placeholder="Password">
+    </div>
+
+    <button type="submit" class="btn-login">Login</button>
+
+<div class="back-link">
+    <a href="{% url 'main' %}">&larr; Back</a>
+</div>
+</form>
+
+        
+
+    </div>
+
+</div>
+
+</body>
+</html>

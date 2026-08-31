@@ -1,0 +1,173 @@
+/* ===============================
+   GLOBAL
+================================ */
+.gs-page {
+    font-family: 'Poppins', sans-serif;
+    min-height: 100vh;
+    background: #e6ecf8;  /* soft matte background */
+    color: #333;
+    padding-top: 100px; /* untuk floating header */
+}
+
+/* ===============================
+   HEADER (Floating Mini Matte)
+================================ */
+.cp-header {
+    position: fixed;
+    top: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 85%;
+    height: 70px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 25px;
+    background: #4a6fa5;  /* matte blue */
+    border-radius: 14px;
+    font-family: 'Poppins', sans-serif;
+    color: #fff;
+    z-index: 999;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+}
+
+/* Header text */
+.cp-header h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.cp-header p {
+    font-size: 0.85rem;
+    opacity: 0.85;
+    margin: 0;
+}
+
+/* ===============================
+   ERROR MESSAGE
+================================ */
+.error-messages {
+    max-width: 500px;
+    margin: 30px auto;
+    padding: 12px 18px;
+    background: #f8d6d6;
+    border-left: 4px solid #d9534f;
+    border-radius: 12px;
+    text-align: center;
+}
+
+.error-messages p {
+    margin: 0;
+    font-weight: 500;
+    color: #a12a2a;
+}
+
+/* ===============================
+   CARDS
+================================ */
+.gs-cards {
+    margin-top: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    align-items: center;
+}
+
+.gs-card {
+    display: flex;
+    align-items: center;
+    background: #ffffff; /* matte white */
+    border-radius: 22px;
+    padding: 22px;
+    text-decoration: none;
+    color: #333;
+    width: 100%;
+    max-width: 520px;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+}
+
+.gs-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 25px rgba(0,0,0,0.1);
+}
+
+/* ICON */
+.gs-card-img {
+    width: 85px;
+    height: 85px;
+    border-radius: 50%;
+    background: #4a6fa5;  /* matte blue */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 20px;
+}
+
+.gs-card-img img {
+    width: 45px;
+    height: 45px;
+    object-fit: contain;
+}
+
+/* CARD CONTENT */
+.gs-card-content h4 {
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 600;
+}
+
+.gs-card-content span {
+    font-size: 0.95rem;
+    color: #555;
+}
+
+/* ===============================
+   BACK LINK
+================================ */
+.back-link {
+    text-align: center;
+    margin: 40px 0;
+}
+
+.back-link a {
+    color: #4a6fa5;  /* matte blue */
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.back-link a:hover {
+    text-decoration: underline;
+}
+
+/* ===============================
+   RESPONSIVE
+================================ */
+@media (max-width: 600px) {
+    .cp-header {
+        width: 90%;
+        height: 60px;
+        padding: 0 15px;
+    }
+    .cp-header h2 {
+        font-size: 1.2rem;
+    }
+    .cp-header p {
+        font-size: 0.75rem;
+    }
+    .gs-card-img {
+        width: 65px;
+        height: 65px;
+    }
+    .gs-card-img img {
+        width: 35px;
+        height: 35px;
+    }
+    .gs-card-content h4 {
+        font-size: 1.2rem;
+    }
+    .gs-card-content span {
+        font-size: 0.85rem;
+    }
+}

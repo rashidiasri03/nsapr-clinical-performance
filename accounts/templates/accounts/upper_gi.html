@@ -1,0 +1,50 @@
+{% include 'partials/header2.html' %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/surgery.css' %}">
+
+<div class="gs-page">
+
+    <!-- HEADER -->
+    <div class="cp-header">
+        <h2>General Surgery - Upper Gastrointestinal</h2>
+        <p>Performance & Activity Overview</p>
+    </div>
+
+    <!-- Papar mesej error -->
+    {% if messages %}
+        <div class="error-messages">
+            {% for message in messages %}
+                <p>{{ message }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- CARDS -->
+    <div class="gs-cards">
+        <a href="{% url 'upper_gi_activities' %}" class="gs-card">
+            <div class="gs-card-img">
+                <img src="{% static 'images/fraternity/l-act.png' %}" alt="Activities">
+            </div>
+            <div class="gs-card-content">
+                <h4>Activities</h4>
+                <span>View & manage Upper GI activities</span>
+            </div>
+        </a>
+
+        <a href="{% url 'dashboard_upper_gi' %}" class="gs-card">
+            <div class="gs-card-img">
+                <img src="{% static 'images/fraternity/l-dash.png' %}" alt="Dashboard">
+            </div>
+            <div class="gs-card-content">
+                <h4>Dashboard</h4>
+                <span>Clinical performance & indicators</span>
+            </div>
+        </a>
+    </div>
+
+    <div class="back-link">
+        <a href="{% url 'fraternity' %}">&larr; Back to Fraternity</a>
+    </div>
+</div>
+
+{% include 'partials/footer.html' %}

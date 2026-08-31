@@ -1,0 +1,23 @@
+{% load static %}
+<header class="cp-header">
+
+    <div class="left-section">
+        <img src="{% static 'images/fraternity/l-cps.png' %}" class="logo" alt="Logo" >
+        <span class="system-name">CLINICAL PERFORMANCE</span>
+    </div>
+
+    <div class="right-section">
+        <span class="username">
+            Hi, {{ request.user.profile.full_name }}
+            {% if request.user.profile.bidang_pembedahan %}
+                <span style="font-size:0.75em; opacity:0.8; font-weight:400; margin-left:6px;">
+                    | {{ request.user.profile.bidang_pembedahan }}
+                </span>
+            {% endif %}
+        </span>
+        <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
+    </div>
+
+</header>
+
+<link rel="stylesheet" href="{% static 'css/header2.css' %}">

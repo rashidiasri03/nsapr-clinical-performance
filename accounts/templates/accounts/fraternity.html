@@ -1,0 +1,488 @@
+{% include 'partials/header2.html' %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/fraternity.css' %}">
+
+<h2 style="color:#4a6fa5; text-align:center; margin-bottom:30px; margin-top: 110px;">Fraternity Page</h2>
+
+
+<div class="table-container">
+    <h3>NATION SAOI</h3>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>SAOI Score</th>
+                <th>Interpretation</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="ct">> 0.80</td>
+                <td class="optimised">Optimised surgical system</td>
+                <td class="ct">Continue to optimize</td>
+            </tr>
+            <tr>
+                <td class="ct">0.60 – 0.79</td>
+                <td class="good">Good</td>
+                <td class="ct">Room for improvement</td>
+            </tr>
+            <tr>
+                <td class="ct">0.40 – 0.59</td>
+                <td class="moderate">Moderate</td>
+                <td class="ct">Targeted improvements needed</td>
+            </tr>
+            <tr>
+                <td class="ct">
+                    < 0.40</td>
+                <td class="underperforming">Underperforming</td>
+                <td class="ct">Requires major reforms</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="fraternity-grid">
+
+    <!--GENERAL SURGERY-->
+    <a href="{% url 'general_surgery' %}" class="fraternity-card">
+        <div class="card-img">
+            <img src="{% static 'images/fraternity/l-gs.png' %}" alt="General Surgery">
+        </div>
+        <div class="card-name">General Surgery</div>
+        <div class="card-total">
+            TOTAL
+            {% if latest_gs %}
+            <br>
+            <small>
+                <span class="score-label">{{ latest_gs.period }} {{ latest_gs.year }}</span><br>
+                Structure: <span class="score-value">{{ latest_gs.total_structure|default_if_none:"0.00" }}</span> |
+                Process: <span class="score-value">{{ latest_gs.total_process|default_if_none:"0.00" }}</span> |
+                Outcome: <span class="score-value">{{ latest_gs.total_outcome|default_if_none:"0.00" }}</span>
+            </small>
+            {% else %}
+            <br><small>No recent data</small>
+            {% endif %}
+        </div>
+    </a>
+
+    <!--GENERAL SURGERY COLORECTAL-->
+    <a href="{% url 'gscolorectal' %}" class="fraternity-card">
+        <div class="card-img"><img src="{% static 'images/fraternity/l-gsc.png' %}" alt="Colorectal"></div>
+        <div class="card-name">General Surgery (Colorectal)</div>
+        <div class="card-total">
+            TOTAL
+            {% if latest_gscolorectal %}
+            <br>
+            <small>
+                <span class="score-label">{{ latest_gscolorectal.period }} {{ latest_gscolorectal.year }}</span><br>
+                Structure: <span class="score-value">{{ latest_gscolorectal.total_structure|default_if_none:"0.00" }}</span> |
+                Process: <span class="score-value">{{ latest_gscolorectal.total_process|default_if_none:"0.00" }}</span> |
+                Outcome: <span class="score-value">{{ latest_gscolorectal.total_outcome|default_if_none:"0.00" }}</span>
+            </small>
+            {% else %}
+            <br><small>No recent data</small>
+            {% endif %}
+        </div>
+    </a>
+
+    <!--GENERAL SURGERY BREAST & ENDOCRINE-->
+    <a href="{% url 'gsbreast_endocrine' %}" class="fraternity-card">
+        <div class="card-img"><img src="{% static 'images/fraternity/l-be.png' %}" alt="Breast"></div>
+        <div class="card-name">General Surgery (Breast & Endocrine)</div>
+        <div class="card-total">
+            TOTAL
+            {% if latest_gsbreast_endocrine %}
+            <br>
+            <small>
+                <span class="score-label">{{ latest_gsbreast_endocrine.period }} {{ latest_gsbreast_endocrine.year }}</span><br>
+                Structure: <span class="score-value">{{ latest_gsbreast_endocrine.total_structure|default_if_none:"0.00" }}</span> |
+                Process: <span class="score-value">{{ latest_gsbreast_endocrine.total_process|default_if_none:"0.00" }}</span> |
+                Outcome: <span class="score-value">{{ latest_gsbreast_endocrine.total_outcome|default_if_none:"0.00" }}</span>
+            </small>
+            {% else %}
+            <br><small>No recent data</small>
+            {% endif %}
+        </div>
+    </a>
+
+    <!--GENERAL SURGERY VASCULAR-->
+    <a href="{% url 'gsvascular' %}" class="fraternity-card">
+        <div class="card-img"><img src="{% static 'images/fraternity/l-gsv.png' %}" alt="Vascular"></div>
+        <div class="card-name">General Surgery (Vascular)</div>
+        <div class="card-total">
+            TOTAL
+            {% if latest_gsvascular %}
+            <br>
+            <small>
+                <span class="score-label">{{ latest_gsvascular.period }} {{ latest_gsvascular.year }}</span><br>
+                Structure: <span class="score-value">{{ latest_gsvascular.total_structure|default_if_none:"0.00" }}</span> |
+                Process: <span class="score-value">{{ latest_gsvascular.total_process|default_if_none:"0.00" }}</span> |
+                Outcome: <span class="score-value">{{ latest_gsvascular.total_outcome|default_if_none:"0.00" }}</span>
+            </small>
+            {% else %}
+            <br><small>No recent data</small>
+            {% endif %}
+        </div>
+    </a>
+
+    <!--GENERAL SURGERY HEPATOBILIARY-->
+    <a href="{% url 'gshepatobiliary' %}" class="fraternity-card">
+        <div class="card-img"><img src="https://img.icons8.com/color/96/liver.png" alt="Hepatobiliary"></div>
+        <div class="card-name">General Surgery (Hepatobiliary)</div>
+        <div class="card-total">
+            TOTAL
+            {% if latest_gshepatobiliary %}
+            <br>
+            <small>
+                <span class="score-label">{{ latest_gshepatobiliary.period }} {{ latest_gshepatobiliary.year }}</span><br>
+                Structure: <span class="score-value">{{ latest_gshepatobiliary.total_structure|default_if_none:"0.00" }}</span> |
+                Process: <span class="score-value">{{ latest_gshepatobiliary.total_process|default_if_none:"0.00" }}</span> |
+                Outcome: <span class="score-value">{{ latest_gshepatobiliary.total_outcome|default_if_none:"0.00" }}</span>
+            </small>
+            {% else %}
+            <br><small>No recent data</small>
+            {% endif %}
+        </div>
+    </a>
+
+    <!--GENERAL SURGERY THORACIC-->
+    <a href="{% url 'gsthoracic' %}" class="fraternity-card">
+        <div class="card-img"><img src="{% static 'images/fraternity/l-tho.png' %}" alt="Thoracic"></div>
+        <div class="card-name">General Surgery (Thoracic)</div>
+        <div class="card-total">
+            TOTAL
+            {% if latest_gsthoracic %}
+            <br>
+            <small>
+                <span class="score-label">{{ latest_gsthoracic.period }} {{ latest_gsthoracic.year }}</span><br>
+                Structure: <span class="score-value">{{ latest_gsthoracic.total_structure|default_if_none:"0.00" }}</span> |
+                Process: <span class="score-value">{{ latest_gsthoracic.total_process|default_if_none:"0.00" }}</span> |
+                Outcome: <span class="score-value">{{ latest_gsthoracic.total_outcome|default_if_none:"0.00" }}</span>
+            </small>
+            {% else %}
+            <br><small>No recent data</small>
+            {% endif %}
+        </div>
+    </a>
+
+    <!--GENERAL SURGERY TRAUMA-->
+    <a href="{% url 'gstrauma' %}" class="fraternity-card">
+        <div class="card-img"><img src="{% static 'images/fraternity/l-gst.png' %}" alt="Trauma"></div>
+        <div class="card-name">General Surgery (Trauma)</div>
+        <div class="card-total">
+            TOTAL
+            {% if latest_gstrauma %}
+            <br>
+            <small>
+                <span class="score-label">{{ latest_gstrauma.period }} {{ latest_gstrauma.year }}</span><br>
+                Structure: <span class="score-value">{{ latest_gstrauma.total_structure|default_if_none:"0.00" }}</span> |
+                Process: <span class="score-value">{{ latest_gstrauma.total_process|default_if_none:"0.00" }}</span> |
+                Outcome: <span class="score-value">{{ latest_gstrauma.total_outcome|default_if_none:"0.00" }}</span>
+            </small>
+            {% else %}
+            <br><small>No recent data</small>
+            {% endif %}
+        </div>
+    </a>
+
+    <!--GENERAL SURGERY UPPER GI-->
+    <a href="{% url 'upper_gi' %}" class="fraternity-card">
+        <div class="card-img"><img src="{% static 'images/fraternity/I-uppergi.png' %}" alt="Upper GI"></div>
+        <div class="card-name">General Surgery (Upper GI)</div>
+        <div class="card-total">
+            TOTAL
+            {% if latest_upper_gi %}
+            <br>
+            <small>
+                <span class="score-label">{{ latest_upper_gi.period }} {{ latest_upper_gi.year }}</span><br>
+                Structure: <span class="score-value">{{ latest_upper_gi.total_structure|default_if_none:"0.00" }}</span> |
+                Process: <span class="score-value">{{ latest_upper_gi.total_process|default_if_none:"0.00" }}</span> |
+                Outcome: <span class="score-value">{{ latest_upper_gi.total_outcome|default_if_none:"0.00" }}</span>
+            </small>
+            {% else %}
+            <br><small>No recent data</small>
+            {% endif %}
+        </div>
+    </a>
+
+    <!--ANAESTHESIA-->
+    <a href="{% url 'anaesthesia' %}" class="fraternity-card">
+        <div class="card-img"><img src="{% static 'images/fraternity/I-anaes.png' %}" alt="Anaesthesia"></div>
+        <div class="card-name">ANAESTHESIA</div>
+        <div class="card-total">
+            TOTAL
+            {% if latest_anaesthesia %}
+            <br>
+            <small>
+                <span class="score-label">{{ latest_anaesthesia.period }} {{ latest_anaesthesia.year }}</span><br>
+                Structure: <span class="score-value">{{ latest_anaesthesia.total_structure|default_if_none:"0.00" }}</span> |
+                Process: <span class="score-value">{{ latest_anaesthesia.total_process|default_if_none:"0.00" }}</span> |
+                Outcome: <span class="score-value">{{ latest_anaesthesia.total_outcome|default_if_none:"0.00" }}</span>
+            </small>
+            {% else %}
+            <br><small>No recent data</small>
+            {% endif %}
+        </div>
+    </a>
+
+    <!--ORTHOPAEDIC-->
+    <a href="{% url 'orthopaedic' %}" class="fraternity-card">
+        <div class="card-img"><img src="{% static 'images/fraternity/l-ort.png' %}" alt="Orthopaedic"></div>
+        <div class="card-name">Orthopaedic</div>
+        <div class="card-total">
+            TOTAL
+            {% if latest_orthopaedic %}
+            <br>
+            <small>
+                <span class="score-label">{{ latest_orthopaedic.period }} {{ latest_orthopaedic.year }}</span><br>
+                Structure: <span class="score-value">{{ latest_orthopaedic.total_structure|default_if_none:"0.00" }}</span> |
+                Process: <span class="score-value">{{ latest_orthopaedic.total_process|default_if_none:"0.00" }}</span> |
+                Outcome: <span class="score-value">{{ latest_orthopaedic.total_outcome|default_if_none:"0.00" }}</span>
+            </small>
+            {% else %}
+            <br><small>No recent data</small>
+            {% endif %}
+        </div>
+    </a>
+
+    <!--NEUROSURGERY-->
+    <a href="{% url 'neurosurgery' %}" class="fraternity-card">
+        <div class="card-img"><img src="https://img.icons8.com/color/96/brain.png" alt="Neurosurgery"></div>
+        <div class="card-name">Neurosurgery</div>
+        <div class="card-total">
+            TOTAL
+            {% if latest_neurosurgery %}
+            <br>
+            <small>
+                <span class="score-label">{{ latest_neurosurgery.period }} {{ latest_neurosurgery.year }}</span><br>
+                Structure: <span class="score-value">{{ latest_neurosurgery.total_structure|default_if_none:"0.00" }}</span> |
+                Process: <span class="score-value">{{ latest_neurosurgery.total_process|default_if_none:"0.00" }}</span> |
+                Outcome: <span class="score-value">{{ latest_neurosurgery.total_outcome|default_if_none:"0.00" }}</span>
+            </small>
+            {% else %}
+            <br><small>No recent data</small>
+            {% endif %}
+        </div>
+    </a>
+
+    <!--UROLOGY-->
+    <a href="{% url 'urology' %}" class="fraternity-card">
+        <div class="card-img"><img src="https://img.icons8.com/color/96/kidney.png" alt="Urology"></div>
+        <div class="card-name">Urology</div>
+        <div class="card-total">
+            TOTAL
+            {% if latest_urology %}
+            <br>
+            <small>
+                <span class="score-label">{{ latest_urology.period }} {{ latest_urology.year }}</span><br>
+                Structure: <span class="score-value">{{ latest_urology.total_structure|default_if_none:"0.00" }}</span> |
+                Process: <span class="score-value">{{ latest_urology.total_process|default_if_none:"0.00" }}</span> |
+                Outcome: <span class="score-value">{{ latest_urology.total_outcome|default_if_none:"0.00" }}</span>
+            </small>
+            {% else %}
+            <br><small>No recent data</small>
+            {% endif %}
+        </div>
+    </a>
+
+    <!--PAEDIATRIC SURGERY-->
+    <a href="{% url 'paediatric' %}" class="fraternity-card">
+        <div class="card-img"><img src="{% static 'images/fraternity/l-ped.png' %}" alt="Paediatric"></div>
+        <div class="card-name">Paediatric Surgery</div>
+        <div class="card-total">
+            TOTAL
+            {% if latest_paediatric %}
+            <br>
+            <small>
+                <span class="score-label">{{ latest_paediatric.period }} {{ latest_paediatric.year }}</span><br>
+                Structure: <span class="score-value">{{ latest_paediatric.total_structure|default_if_none:"0.00" }}</span> |
+                Process: <span class="score-value">{{ latest_paediatric.total_process|default_if_none:"0.00" }}</span> |
+                Outcome: <span class="score-value">{{ latest_paediatric.total_outcome|default_if_none:"0.00" }}</span>
+            </small>
+            {% else %}
+            <br><small>No recent data</small>
+            {% endif %}
+        </div>
+    </a>
+
+    <!--CARDIOTHORACIC SURGERY-->
+    <a href="{% url 'cardiothoracic' %}" class="fraternity-card">
+        <div class="card-img"><img src="{% static 'images/fraternity/l-car.png' %}" alt="Cardiothoracic"></div>
+        <div class="card-name">Cardiothoracic Surgery</div>
+        <div class="card-total">
+            TOTAL
+            {% if latest_cardiothoracic %}
+            <br>
+            <small>
+                <span class="score-label">{{ latest_cardiothoracic.period }} {{ latest_cardiothoracic.year }}</span><br>
+                Structure: <span class="score-value">{{ latest_cardiothoracic.total_structure|default_if_none:"0.00" }}</span> |
+                Process: <span class="score-value">{{ latest_cardiothoracic.total_process|default_if_none:"0.00" }}</span> |
+                Outcome: <span class="score-value">{{ latest_cardiothoracic.total_outcome|default_if_none:"0.00" }}</span>
+            </small>
+            {% else %}
+            <br><small>No recent data</small>
+            {% endif %}
+        </div>
+    </a>
+
+    <!--OBSTETRICS & GYNAECOLOGY-->
+    <a href="{% url 'obstetrics_gynaecology' %}" class="fraternity-card">
+        <div class="card-img"><img src="{% static 'images/fraternity/l-og.png' %}" alt="Obstetrics & Gynae"></div>
+        <div class="card-name">Obstetrics & Gynaecology</div>
+        <div class="card-total">
+            TOTAL
+            {% if latest_obstetrics_gynaecology %}
+            <br>
+            <small>
+                <span class="score-label">{{ latest_obstetrics_gynaecology.period }} {{ latest_obstetrics_gynaecology.year }}</span><br>
+                Structure: <span class="score-value">{{ latest_obstetrics_gynaecology.total_structure|default_if_none:"0.00" }}</span> |
+                Process: <span class="score-value">{{ latest_obstetrics_gynaecology.total_process|default_if_none:"0.00" }}</span> |
+                Outcome: <span class="score-value">{{ latest_obstetrics_gynaecology.total_outcome|default_if_none:"0.00" }}</span>
+            </small>
+            {% else %}
+            <br><small>No recent data</small>
+            {% endif %}
+        </div>
+    </a>
+
+    <!--OPHTHALMOLOGY-->
+    <a href="{% url 'ophthalmology' %}" class="fraternity-card">
+        <div class="card-img"><img src="{% static 'images/fraternity/l-opth.png' %}" alt="Ophthalmology"></div>
+        <div class="card-name">Ophthalmology</div>
+        <div class="card-total">
+            TOTAL
+            {% if latest_ophthalmology %}
+            <br>
+            <small>
+                <span class="score-label">{{ latest_ophthalmology.period }} {{ latest_ophthalmology.year }}</span><br>
+                Structure: <span class="score-value">{{ latest_ophthalmology.total_structure|default_if_none:"0.00" }}</span> |
+                Process: <span class="score-value">{{ latest_ophthalmology.total_process|default_if_none:"0.00" }}</span> |
+                Outcome: <span class="score-value">{{ latest_ophthalmology.total_outcome|default_if_none:"0.00" }}</span>
+            </small>
+            {% else %}
+            <br><small>No recent data</small>
+            {% endif %}
+        </div>
+    </a>
+
+    <!--OTORHINOLARYNGOLOGY-->
+    <a href="{% url 'otorhinolaryngology' %}" class="fraternity-card">
+        <div class="card-img"><img src="{% static 'images/fraternity/l-oto.png' %}" alt="ENT"></div>
+        <div class="card-name">Otorhinolaryngology</div>
+        <div class="card-total">
+            TOTAL
+            {% if latest_otorhinolaryngology %}
+            <br>
+            <small>
+                <span class="score-label">{{ latest_otorhinolaryngology.period }} {{ latest_otorhinolaryngology.year }}</span><br>
+                Structure: <span class="score-value">{{ latest_otorhinolaryngology.total_structure|default_if_none:"0.00" }}</span> |
+                Process: <span class="score-value">{{ latest_otorhinolaryngology.total_process|default_if_none:"0.00" }}</span> |
+                Outcome: <span class="score-value">{{ latest_otorhinolaryngology.total_outcome|default_if_none:"0.00" }}</span>
+            </small>
+            {% else %}
+            <br><small>No recent data</small>
+            {% endif %}
+        </div>
+    </a>
+
+    <!--PLASTIC & RECONSTRUCTIVE-->
+    <a href="{% url 'plastic_reconstructive' %}" class="fraternity-card">
+        <div class="card-img"><img src="https://img.icons8.com/color/96/plastic-surgery.png" alt="Plastic"></div>
+        <div class="card-name">Plastic & Reconstructive</div>
+        <div class="card-total">
+            TOTAL
+            {% if latest_plastic_reconstructive %}
+            <br>
+            <small>
+                <span class="score-label">{{ latest_plastic_reconstructive.period }} {{ latest_plastic_reconstructive.year }}</span><br>
+                Structure: <span class="score-value">{{ latest_plastic_reconstructive.total_structure|default_if_none:"0.00" }}</span> |
+                Process: <span class="score-value">{{ latest_plastic_reconstructive.total_process|default_if_none:"0.00" }}</span> |
+                Outcome: <span class="score-value">{{ latest_plastic_reconstructive.total_outcome|default_if_none:"0.00" }}</span>
+            </small>
+            {% else %}
+            <br><small>No recent data</small>
+            {% endif %}
+        </div>
+    </a>
+
+    <!--EMERGENCY & TRAUMA-->
+    <a href="{% url 'emergency_trauma' %}" class="fraternity-card">
+        <div class="card-img"><img src="{% static 'images/fraternity/l-et.png' %}" alt="Emergency"></div>
+        <div class="card-name">Emergency & Trauma</div>
+        <div class="card-total">
+            TOTAL
+            {% if latest_emergency_trauma %}
+            <br>
+            <small>
+                <span class="score-label">{{ latest_emergency_trauma.period }} {{ latest_emergency_trauma.year }}</span><br>
+                Structure: <span class="score-value">{{ latest_emergency_trauma.total_structure|default_if_none:"0.00" }}</span> |
+                Process: <span class="score-value">{{ latest_emergency_trauma.total_process|default_if_none:"0.00" }}</span> |
+                Outcome: <span class="score-value">{{ latest_emergency_trauma.total_outcome|default_if_none:"0.00" }}</span>
+            </small>
+            {% else %}
+            <br><small>No recent data</small>
+            {% endif %}
+        </div>
+    </a>
+
+    <!--ORAL MAXILLOFACIAL-->
+    <a href="{% url 'oral_maxillofacial' %}" class="fraternity-card">
+        <div class="card-img"><img src="{% static 'images/fraternity/l-oral.png' %}" alt="Oral Maxillofacial"></div>
+        <div class="card-name">Oral Maxillofacial Surgery</div>
+        <div class="card-total">
+            TOTAL
+            {% if latest_oral_maxillofacial %}
+            <br>
+            <small>
+                <span class="score-label">{{ latest_oral_maxillofacial.period }} {{ latest_oral_maxillofacial.year }}</span><br>
+                Structure: <span class="score-value">{{ latest_oral_maxillofacial.total_structure|default_if_none:"0.00" }}</span> |
+                Process: <span class="score-value">{{ latest_oral_maxillofacial.total_process|default_if_none:"0.00" }}</span> |
+                Outcome: <span class="score-value">{{ latest_oral_maxillofacial.total_outcome|default_if_none:"0.00" }}</span>
+            </small>
+            {% else %}
+            <br><small>No recent data</small>
+            {% endif %}
+        </div>
+    </a>
+
+    <!--PUBLIC HEALTH-->
+    <a href="{% url 'public_health' %}" class="fraternity-card">
+        <div class="card-img"><img src="{% static 'images/fraternity/l-ph.png' %}" alt="Public Health"></div>
+        <div class="card-name">Public Health</div>
+        <div class="card-total">
+            TOTAL
+            {% if latest_public_health %}
+            <br>
+            <small>
+                <span class="score-label">{{ latest_public_health.period }} {{ latest_public_health.year }}</span><br>
+                Structure: <span class="score-value">{{ latest_public_health.total_structure|default_if_none:"0.00" }}</span> |
+                Process: <span class="score-value">{{ latest_public_health.total_process|default_if_none:"0.00" }}</span> |
+                Outcome: <span class="score-value">{{ latest_public_health.total_outcome|default_if_none:"0.00" }}</span>
+            </small>
+            {% else %}
+            <br><small>No recent data</small>
+            {% endif %}
+        </div>
+    </a>
+
+    <!--FAMILY MEDICINE-->
+    <a href="{% url 'family_medicine' %}" class="fraternity-card">
+        <div class="card-img"><img src="{% static 'images/fraternity/l-fm.png' %}" alt="Family Medicine"></div>
+        <div class="card-name">Family Medicine</div>
+        <div class="card-total">
+            TOTAL
+            {% if latest_family_medicine %}
+            <br>
+            <small>
+                <span class="score-label">{{ latest_family_medicine.period }} {{ latest_family_medicine.year }}</span><br>
+                Structure: <span class="score-value">{{ latest_family_medicine.total_structure|default_if_none:"0.00" }}</span> |
+                Process: <span class="score-value">{{ latest_family_medicine.total_process|default_if_none:"0.00" }}</span> |
+                Outcome: <span class="score-value">{{ latest_family_medicine.total_outcome|default_if_none:"0.00" }}</span>
+            </small>
+            {% else %}
+            <br><small>No recent data</small>
+            {% endif %}
+        </div>
+    </a>
+
+</div>

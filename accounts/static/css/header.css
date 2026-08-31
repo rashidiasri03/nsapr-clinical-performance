@@ -1,0 +1,134 @@
+/* Gaya untuk Header */
+header {
+    position: relative;
+    z-index: 9999;
+}
+
+/* 🌊 Navbar - efek kaca biru sebenar */
+.navbar {
+    background: linear-gradient(135deg, rgba(0, 102, 255, 0.25), rgba(0, 204, 255, 0.15));
+    backdrop-filter: blur(15px) saturate(180%);
+    -webkit-backdrop-filter: blur(15px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow:
+        0 8px 32px 0 rgba(0, 123, 255, 0.37),
+        inset 0 0 20px rgba(255, 255, 255, 0.05);
+}
+
+/* Navbar Brand */
+.navbar-brand {
+    font-size: 24px;
+    font-weight: bold;
+    color: #000000 !important; /* Hitam */
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-shadow: none; /* Tiada cahaya */
+}
+
+/* Navbar Links */
+.navbar-nav .nav-item .nav-link {
+    font-size: 18px;
+    color: #000000 !important; /* Hitam */
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 12px 20px;
+    transition: all 0.3s ease;
+}
+
+/* Hover effect pada Navbar Links */
+.navbar-nav .nav-item .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #333333 !important; /* Hitam lebih lembut bila hover */
+    transform: scale(1.1);
+}
+
+/* Navbar Toggle Button (untuk skrin kecil) */
+.navbar-toggler {
+    border-color: rgba(0, 0, 0, 0.6);
+}
+
+.navbar-toggler-icon {
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+/* Responsif untuk skrin kecil */
+@media (max-width: 991px) {
+    .navbar-nav .nav-item {
+        margin: 10px 0;
+    }
+}
+
+/* Navbar Collapse */
+.navbar-collapse {
+    justify-content: flex-end;
+}
+
+/* Fixed Navbar */
+.navbar.fixed-top {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    box-shadow: 0 8px 32px rgba(0, 102, 255, 0.37);
+}
+
+/* Padding pada body supaya kandungan tak tertutup navbar */
+body {
+    padding-top: 80px;
+}
+
+/* Logout button style */
+.logout-btn {
+    color: #dc3545; /* merah lembut */
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+    color: white;
+    background: rgba(220, 53, 69, 0.8);
+    border-radius: 25px;
+    padding: 6px 15px;
+    backdrop-filter: blur(6px);
+}
+
+/* LEFT SECTION */
+.left-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logo {
+    height: 40px;
+}
+
+.system-name {
+    font-size: 20px;
+    font-weight: 700;
+}
+
+
+.brand-logo {
+  max-height: 40px;
+  width: auto;
+  display: block;
+  object-fit: contain;
+}
+
+
+.brand-logo {
+    max-height: 40px;
+  }
+
+  .brand-mark {
+  width: 54px;
+  height: 54px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 1px solid rgba(148, 163, 184, 0.5);
+  background: radial-gradient(circle at 30% 0%, rgba(59,130,246,0.12), #ffffff);
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.12);
+}

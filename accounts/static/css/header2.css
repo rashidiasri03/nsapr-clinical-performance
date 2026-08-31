@@ -1,0 +1,70 @@
+.cp-header {
+    position: fixed;
+    top: 15px;               /* jarak dari atas */
+    left: 50%;
+    transform: translateX(-50%);  /* supaya betul-betul tengah */
+
+    width: 85%;              /* biar nampak macam card tengah */
+    height: 70px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 25px;
+
+    background: #4a6fa5;  /* matte blue */
+    backdrop-filter: blur(12px);            /* blur belakang */
+    -webkit-backdrop-filter: blur(12px);
+    
+    border-radius: 14px;    
+    border: 1px solid rgba(255, 255, 255, 0.25);
+
+    font-family: 'Poppins', sans-serif;
+    color: white;
+    z-index: 999;            /* pastikan atas semua */
+}
+
+/* LEFT SECTION */
+.left-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logo {
+    height: 40px;
+    filter: brightness(0) invert(1);
+}
+
+.system-name {
+    font-size: 20px;
+    font-weight: 700;
+}
+
+/* RIGHT SECTION */
+.right-section {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.username {
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.logout-btn {
+    padding: 6px 14px;
+    background: rgb(255, 60, 60);  
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    backdrop-filter: blur(5px);
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: 0.25s;
+}
+
+.logout-btn:hover {
+    background: rgba(255, 60, 60, 0.85);
+}

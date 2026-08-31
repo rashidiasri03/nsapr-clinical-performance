@@ -1,0 +1,137 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Performance Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="{% static 'css/footer.css' %}">
+  <link rel="stylesheet" href="{% static 'css/header.css' %}">
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+</head>
+
+<body>
+  {% include 'partials/header.html' %}
+  
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container">
+      <h1 class="display-4 fw-bold">CLINICAL PERFORMANCE SYSTEM<br> (CPS)</h1>
+    </div>
+  </section>
+
+
+
+ <!-- About Us Section -->
+<section class="about-us-section fade-in">
+  <div class="container text-center">
+
+    <!-- ABOUT US IMAGE -->
+    <img src="{% static 'images/fraternity/l-cps.png' %}"
+         alt="About Us Image"
+         class="about-img fade-in delay-1">
+
+    <h1 class="about-title fade-in delay-2 mt-4">ABOUT US</h1>
+
+    <p class="about-description fade-in delay-3">
+      The proposed NSAPR framework aims to systematically evaluate the surgical 
+      and anaesthesia performance, to identify gaps and propose improvement measures 
+      across all healthcare levels.
+    </p>
+
+    <p class="author-name fade-in delay-3">Team Clinical Performance</p>
+  </div>
+</section>
+  <!-- MVO Section -->
+
+<section class="mvo-us-section">
+  <div class="content">
+
+    <!-- VISION -->
+    <div class="mvo-box text-center fade-in delay-1">
+      <img src="{% static 'images/fraternity/l-v.png' %}" class="mvo-icon" alt="Vision Logo">
+      <h2 class="title">Vision</h2>
+      <p>
+        To be a paragon of healthcare performance in MOH Malaysia, where each 
+        clinical and non-clinical area contributes to improved health outcomes 
+        and a sustainable healthcare system.
+      </p>
+    </div>
+
+    <!-- MISSION -->
+    <div class="mvo-box text-center fade-in delay-2">
+      <img src="{% static 'images/fraternity/l-m.png' %}" class="mvo-icon" alt="Mission Logo">
+      <h2 class="title">Mission</h2>
+      <p>
+        To ensure strategic oversight of clinical performance by evaluating 
+        service standards, patient outcomes, resource balance, and enabling 
+        data-driven decisions for continuous improvement and equitable care.
+      </p>
+    </div>
+
+    <!-- OBJECTIVES -->
+    <div class="mvo-box text-center fade-in delay-3">
+      <img src="{% static 'images/fraternity/l-o.png' %}" class="mvo-icon" alt="Objective Logo">
+      <h2 class="title">Objectives</h2>
+
+      <ul class="text-start">
+        <li>Benchmark surgical and anaesthesia services nationally and internationally.</li>
+        <li>Integrate improvement measures into MOH policy and planning.</li>
+        <li>Identify training needs for continuous professional development.</li>
+        <li>Enhance accountability through structured reporting and audit processes.</li>
+        <li>Promote evidence-based practices and adherence to clinical guidelines.</li>
+        <li>Strengthen safety in surgical and anaesthesia care.</li>
+      </ul>
+    </div>
+
+  </div>
+</section>
+<!-- ===== CLINICAL PERFORMANCE SECTION ===== -->
+<section class="clinical-performance-section fade-in">
+  <div class="container text-center">
+
+    <h1 class="cp-title mb-5">CLINICAL PERFORMANCE</h1>
+
+    <div class="row justify-content-center g-4">
+
+      <!-- NSAPR -->
+      <div class="col-md-4">
+        <div class="cp-box">
+          <h3 class="cp-name">NATIONAL SURGICAL AND ANAESTHESIA PERFORMANCE (NSAPR)</h3>
+          <a href="{% url 'login' %}" class="btn btn-primary mt-3">Login</a>
+        </div>
+      </div>
+
+      <!-- NMPR -->
+      <div class="col-md-4">
+        <div class="cp-box">
+          <h3 class="cp-name">NATIONAL MEDICAL PERFORMANCE REVIEW (NMPR)</h3>
+          <button class="btn btn-secondary mt-3" disabled>Login</button>
+        </div>
+      </div>
+
+      <!-- NCSPR -->
+      <div class="col-md-4">
+        <div class="cp-box">
+          <h3 class="cp-name">NATIONAL CLINICAL SUPPORT PERFORMANCE REVIEW (NCSPR)</h3>
+          <button class="btn btn-secondary mt-3" disabled>Login</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<script>
+
+</script>
+  
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  {% include 'partials/footer.html' %}
+</body>
+
+</html>

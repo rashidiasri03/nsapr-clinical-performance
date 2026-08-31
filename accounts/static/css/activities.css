@@ -1,0 +1,150 @@
+body {
+    font-family: 'Poppins', sans-serif;
+    background: #f0f4ff;
+    padding: 20px;
+}
+
+/* TITLE */
+.title {
+    text-align: center;
+    font-size: 32px;
+    color: #2a3eb1;
+    font-weight: 700;
+    margin-bottom: 40px;
+}
+
+/* WRAPPER */
+.activity-wrapper {
+    max-width: 850px;
+    margin: auto;
+}
+
+/* ==== GLASS EFFECT CARD ==== */
+.activity-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 22px 35px;
+    margin-bottom: 25px;
+
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+
+    border-radius: 45px;
+    border: 2px solid rgba(255, 255, 255, 0.35);
+
+    box-shadow:
+        0 4px 15px rgba(0, 0, 0, 0.1),
+        inset 0 0 10px rgba(255, 255, 255, 0.35);
+
+    transition: 0.25s ease;
+}
+
+.activity-card:hover {
+    transform: scale(1.02);
+    box-shadow:
+        0 6px 20px rgba(0, 0, 0, 0.15),
+        inset 0 0 15px rgba(255, 255, 255, 0.4);
+}
+
+/* ====== TEXT ====== */
+.activity-text {
+    font-size: 26px;
+    font-weight: 700;
+    color: #1a2f8b;
+    letter-spacing: 0.5px;
+    text-shadow: 0 1px 1px rgba(255,255,255,0.4);
+}
+
+/* BUTTON AREA */
+.activity-buttons {
+    display: flex;
+    gap: 12px;
+}
+
+/* ===== BUTTONS STYLE ===== */
+.btn {
+    padding: 10px 32px;
+    border-radius: 30px;
+    font-weight: 700;
+    text-decoration: none;
+    color: white;
+    transition: 0.2s;
+    cursor: pointer;
+}
+
+.btn-start {
+    background: linear-gradient(to bottom, #28d700, #17b300);
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15), inset 0 0 5px rgba(255,255,255,0.5);
+}
+
+.btn-continue {
+    background: linear-gradient(to bottom, #ffd700, #f0b400);
+    color: black;
+}
+
+.btn-done {
+    background: linear-gradient(to bottom, #16cc87, #0fa96c);
+    border: none;
+}
+
+.btn-edit {
+    background: #6c757d;
+}
+
+/* ===== BUTTON TAMBAH ===== */
+.add-btn-container {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.btn-add {
+    background: linear-gradient(to bottom, #ff961d, #ff7a00);
+    color: white;
+    padding: 12px 28px;
+    border-radius: 14px;
+    font-size: 22px;
+    font-weight: 700;
+    text-decoration: none;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+
+
+.back-link {
+    position: fixed;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: fit-content;
+    text-align: center;
+}
+
+.back-link a {
+    color: #1a73e8;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.back-link a:hover {
+    text-decoration: underline;
+}
+
+.btn-delete {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    margin-left: 10px; /* Jarak sikit dari butang Edit/Start */
+}
+
+.btn-delete:hover {
+    background-color: #c82333;
+    color: white;
+}

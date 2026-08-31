@@ -1,0 +1,53 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Otorhinolaryngology – Activities</title>
+
+    <!-- Link CSS -->
+    <link rel="stylesheet" href="{% static 'css/activities.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <h2 class="title">Otorhinolaryngology – Activities</h2>
+
+    <div class="activity-wrapper">
+
+        {% for a in activities %}
+        <div class="activity-card">
+
+            <!-- TEXT -->
+            <div class="activity-text">
+                {{ a.period }} &nbsp; {{ a.year }}
+            </div>
+
+            <!-- BUTTONS -->
+            <div class="activity-buttons">
+            
+                {% if a.status == "not_started" %}
+                    <a href="{% url 'form_otorhinolaryngology' a.id %}" class="btn btn-start">START</a>
+
+                {% elif a.status == "in_progress" %}
+                    <a href="{% url 'form_otorhinolaryngology' a.id %}" class="btn btn-continue">CONTINUE</a>
+
+                {% else %}
+                    <button class="btn btn-done" disabled>DONE</button>
+                    <a href="{% url 'form_otorhinolaryngology' a.id %}" class="btn btn-edit">EDIT</a>
+                {% endif %}
+            </div>
+
+        </div>
+        {% endfor %}
+
+    </div>
+
+    <div class="add-btn-container">
+        <a href="{% url 'add_otorhinolaryngology_activity' %}" class="btn-add">Add</a>
+    </div>
+    <div class="back-link">
+        <a href="{% url 'otorhinolaryngology' %}">&larr; Back</a>
+    </div>
+</body>
+</html>
