@@ -214,6 +214,7 @@ class GSColorectalDetail(models.Model):
     category = models.CharField(max_length=50)
     domain_name = models.CharField(max_length=255)
     performances_value = models.IntegerField(default=0)  # ✅ CHANGE
+    denominator = models.IntegerField(default=0)
     target = models.IntegerField(default=0)              # ✅ CHANGE
     weight = models.FloatField(default=0.0)
     score = models.FloatField(default=0)

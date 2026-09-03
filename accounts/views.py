@@ -488,81 +488,36 @@ def form_gscolorectal(request, activity_id):
     
     activity = get_object_or_404(GSColorectalActivity, id=activity_id)
     
+    # Parameter Terbaharu dari Excel (CRC)
     structure_domains = [
-        "Number of FTE consultant general surgeons (Ensures adequate expertise for managing complex surgical cases)",
-        "Operating rooms equipped for general surgical procedures (including laparoscopic capabilities) (Supports safe surgical practices and reduces intraoperative risks)",
-        "Availability of electrocautery units and surgical energy devices (Improves bleeding control during surgery, enhancing safety)",
-        "Templates for documenting procedures and post-op care reduce clinical errors (Standardized documentation reduces variability and improves safety)",
-        "Clinical guidelines for common surgical conditions (Reduces treatment variation and improves patient safety)",
-        "Number of FTE surgeons with sub-specialty interests (Supports safe and focused care for complex conditions)",
-        "Availability of complete and functional surgical instrument sets (Prevents errors or delays during procedures due to missing tools)",
-        "Surgical morbidity and mortality reviews (Enables continuous learning and improvement from clinical outcomes)",
-        "Number of FTE registered nurses dedicated to general surgical care (Ensures safe monitoring and postoperative care)",
-        "Availability of stoma care nurses, wound care specialists (Reduces risk of complications through proper wound/stoma management)",
-        "Sub-specialty-trained surgeons improve quality of care (Enhances treatment precision and clinical outcomes)",
-        "Dedicated clinic and minor procedure rooms (Facilitates timely care for minor cases outside of major theatres)",
-        "Laparoscopic towers and instrumentation (Enables minimally invasive surgeries with better outcomes)",
-        "Integration of surgical documentation and access to imaging improves decision-making (Supports comprehensive clinical decisions)",
-        "Protocols ensure consistent evidence-based practice (Promotes high-quality, standardized care)",
-        "Dedicated surgical support staff improve recovery outcomes (Improves postoperative healing through specialized nursing care)",
-        "Adequate inpatient surgical ward beds (Supports continuity of care after surgery)",
-        "Endoscopy units for diagnostic and therapeutic procedures (Supports accurate, early diagnosis and treatment)",
-        "Outcome tracking system enhances quality monitoring (Allows systematic evaluation and improvement of surgical care)",
-        "MDT meetings address complex conditions (e.g., colorectal cancer) with tailored care (Ensures care plans are aligned with individual patient needs)",
-        "Operating theatre availability and scheduling efficiency (Reduces patient wait times for surgery)",
-        "Efficient scheduling and workflow management (Prevents delays and improves overall department performance)",
-        "Minor procedure rooms support fast access for outpatient care (Enables quicker interventions for less complex cases)",
-        "Ratio of consultant general surgeons to surgical patient volume (Balances workload, prevents bottlenecks, and improves productivity)",
-        "Optimized use of operating theatre time (Maximizes surgical throughput without compromising quality)",
-        "Advanced surgical tools reduce intraoperative time and complications (Improves workflow and minimizes risk during operations)",
-        "Electronic systems streamline documentation, communication, and tracking (Minimizes paperwork, improves coordination)",
-        "Allocation of specific beds enhances patient flow (Improves patient admission and discharge efficiency)",
-        "Availability of support staff ensures care for specific patient needs (e.g., stoma, wounds) (Ensures all patient groups receive appropriate and targeted support)",
-        "Access to surgical consultation rooms and procedures for various patient groups (Ensures inclusivity and service access across all demographics)",
-        "Availability of specialized equipment for diverse surgical needs (e.g., GI, laparoscopic) (Ensures all types of patients can be treated appropriately)",
-        "Policies ensure access to standardised care for all surgical patients (Prevents disparities in care and ensures fairness)",
-        "Integration with imaging and EHR allows cross-departmental care coordination (Enables seamless sharing of information for multidisciplinary care)",
-        "Multidisciplinary policies enable collaboration across departments (Supports unified management with other specialties like oncology or radiology)"
+        "Creation of a module for Awareness of Colorectal Cancer for public health sector personnels.",
+        "Increase of Colorectal Cancer screening by 2% per year",
+        "Renewal of Credentialing and Privileging every 2 years for MOH surgeons performing surgery in Colorectal Cancer",
+        "Creation of a mobile Cancer Awareness Promotion Unit in each JKN",
+        "Creation of a Colorectal Cancer Navigation (One stop centre) in each Klinik Kesihatan involved in Colorectal Cancer screening",
+        "Creation of regional services for 3 Specialized Colorectal Services",
+        "Percentage of state hospitals with complete set up of Colorectal Surgery Unit.",
+        "Percentage of state hospitals with 2 NSR certified Colorectal Surgeons",
+        "Colorectal Cancer Notification via MyHDW database."
     ]
     
     process_domains = [
-        "Percentage of patients with completed preoperative assessments (Tracks completion of risk, medical, and surgical readiness assessments before surgery.)",
-        "Incidence of wrong-site, wrong-procedure, wrong-patient events (Counts serious preventable surgical errors involving site, procedure, or patient.)",
-        "Incidence of major anaesthetic complications in General Surgery patients (Monitors serious events like cardiac arrest or airway failure.)",
-        "Incidence of surgical site infections (SSIs) (Tracks the number of infections at the incision site after surgery.)",
-        "Percentage of General Surgery patients with documented informed consent (Tracks proper documentation that the patient was informed and agreed.)",
-        "Percentage of appropriate referrals to General Surgery (Measures how many referrals meet clinical criteria for General Surgery assessment.)",
-        "Percentage of required preoperative investigations completed and reviewed (Checks if all necessary lab and imaging tests are done and reviewed.)",
-        "Percentage of General Surgery procedures with completed safety checklists (Measures use of surgical safety checklists before and during surgery.)",
-        "Percentage of adherence to anaesthesia safety protocols (Checks how consistently safety practices like equipment checks and dosing are followed.)",
-        "Percentage of appropriate sterilization/disinfection of instruments (Monitors correct sterilization procedures for surgical tools.)",
-        "Percentage of identified General Surgery problems with documented notes (Measures how well surgical issues are recorded in clinical records.)",
-        "Percentage of documented communication with referring providers (Measures if referring doctors are updated with patient care details.)",
-        "Patient satisfaction with preoperative information and preparation (Assesses how well patients feel informed and ready for surgery.)",
-        "Patient satisfaction with clarity of information from surgery team (Assesses how clearly the surgery plan and risks were explained.)",
-        "Time from referral to initial General Surgery consultation (Average time taken from referral receipt to first consultation.)",
-        "Timeliness of General Surgery record completion (Tracks how quickly surgical notes and documentation are completed after procedures.)",
-        "Percentage of patients screened according to relevant guidelines",
-        "Percentage of General Surgery patient records following POMR format (Monitors compliance with standardized perioperative documentation.)",
-        "Percentage of intraoperative adverse events (Tracks complications such as bleeding or equipment failure during surgery.)",
-        "Percentage of General Surgery patients assessed for anaesthesia risk (Tracks preoperative risk evaluations for anesthesia suitability.)",
-        "Percentage of adherence to hand hygiene protocols (Checks how consistently hand hygiene is followed by surgical staff.)"
+        "Percentage of utilization of screening iFOBT kits",
+        "Individual with positive screening iFOBT must undergo colonoscopy within 1 month.",
+        "Adherence to Colorectal Cancer Surgery Prehabilitation Programme.",
+        "Standardization of Colorectal Cancer Procedure Specific Consent Forms nationwide",
+        "Adherence to Safe Surgery Saves Life ( SSSL ) guidelines",
+        "Adherence to vPOMR reporting",
+        "Adherence to Surgical Site Infection (SSI) reporting"
     ]
     
     outcome_domains = [
-        "Hospital-Acquired Infection Rate (Incidence of infections acquired during hospital stay.)",
-        "30-Day Mortality Rate (Number of deaths within 30 days post-surgery per 1,000 cases.)",
-        "Waiting Time for Elective Surgeries (Average duration from consultation to surgery.)",
-        "Reoperation Rate (Percentage of patients requiring additional surgery due to complications.)",
-        "Cause-Specific Mortality Analysis (Evaluation of mortality causes to inform quality improvement.)",
-        "Complaint Resolution Time (Average time taken to address patient complaints.)",
-        "Patient Satisfaction Surveys (Scores reflecting patient experiences and satisfaction.)",
-        "Emergency Case Response Time (Time from emergency admission to surgical intervention.)",
-        "Average time to address patient complaints (Measures responsiveness of the care system.)",
-        "Average duration from consultation to surgery (Total time between first surgical consult and actual surgery as a measure of system efficiency.)",
-        "Demographic Analysis of Service Utilization (Assessment of access across different population groups.)",
-        "Language and Cultural Support Services (Availability of translation and culturally sensitive care.)",
-        "Availability of translation and culturally sensitive care (Measures system integration of diverse patient needs into routine practice.)"
+        "Referral for suspected Colorectal Cancer must be given appointment within 2 weeks of date of referral",
+        "Unclear surgical margins in Rectal Cancer Surgery (Total Mesorectal Excision)",
+        "Elective major colorectal cancer resection by laparoscopic surgery",
+        "Peri-operative mortality rate for all elective major colorectal resection",
+        "Rate of Surgical Site Infection after Major Elective Colorectal Cancer Resection",
+        "Number of complaints via ‘SISTEM PENGURUSAN ADUAN AWAM (SISPAA) berasas’ per year"
     ]
     
     detail_dict = {}
@@ -571,28 +526,49 @@ def form_gscolorectal(request, activity_id):
         key = f"{d.category}_{d.domain_name}"
         detail_dict[key] = {
             'performances': d.performances_value,
+            'denominator': d.denominator,
             'target': d.target,
             'weight': d.weight,
             'score': d.score,
             'wscore': d.weighted_score,
             'index': d.index
         }
-    
+        
     if request.method == 'POST':
         GSColorectalDetail.objects.filter(activity=activity).delete()
         
         def save_domain(category, domain_name, i):
             performances = request.POST.get(f'{category}_performances_{i}', '0')
+            denominator = request.POST.get(f'{category}_denominator_{i}', '0')
             target = request.POST.get(f'{category}_target_{i}', '0')
             weight = request.POST.get(f'{category}_weight_{i}', '0')
             
-            score_f, wscore_f, index_f = calculate_domain_scores(performances, target, weight)
+            try: num_d = Decimal(str(performances))
+            except: num_d = Decimal('0')
+            try: den_d = Decimal(str(denominator))
+            except: den_d = Decimal('0')
+            try: wgt_d = Decimal(str(weight))
+            except: wgt_d = Decimal('0')
+            
+            if den_d > 0:
+                score_d = (num_d / den_d) * Decimal('100')
+                wscore_d = (num_d / den_d) * wgt_d
+                index_d = num_d / den_d
+            else:
+                score_d = Decimal('0')
+                wscore_d = Decimal('0')
+                index_d = Decimal('0')
+                
+            score_f = float(score_d.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))
+            wscore_f = float(wscore_d.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))
+            index_f = float(index_d.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))
 
             GSColorectalDetail.objects.create(
                 activity=activity,
                 category=category,
                 domain_name=domain_name,
                 performances_value=int(performances) if performances else 0,
+                denominator=int(denominator) if denominator else 0,
                 target=int(target) if target else 0,
                 weight=float(weight) if weight else 0,
                 score=score_f,
@@ -603,21 +579,22 @@ def form_gscolorectal(request, activity_id):
             return Decimal(str(wscore_f))
         
         total_structure = Decimal('0')
-        total_process = Decimal('0')
-        total_outcome = Decimal('0')
-        
         for i, domain in enumerate(structure_domains, start=1):
             total_structure += save_domain('structure', domain, i)
         
+        total_process = Decimal('0')
         for i, domain in enumerate(process_domains, start=1):
             total_process += save_domain('process', domain, i)
         
+        total_outcome = Decimal('0')
         for i, domain in enumerate(outcome_domains, start=1):
             total_outcome += save_domain('outcome', domain, i)
         
-        activity.total_structure = total_structure.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
-        activity.total_process = total_process.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
-        activity.total_outcome = total_outcome.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+        activity.total_structure = float(total_structure.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))
+        activity.total_process = float(total_process.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))
+        activity.total_outcome = float(total_outcome.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))
+        
+        # Keseragaman Status
         activity.status = 'completed'
         activity.save()
         
@@ -639,7 +616,7 @@ def dashboard_gscolorectal(request):
     selected_period = request.GET.get('period', 'Jan-Jun')
     
     try:
-        activity = GSColorectalActivity.objects.get(year=selected_year, period=selected_period)
+        activity = GSColorectalActivity.objects.get(year=selected_year, period=selected_period, status="completed")
         total_structure = activity.total_structure
         total_process = activity.total_process
         total_outcome = activity.total_outcome
