@@ -2373,7 +2373,7 @@ def dashboard_gshepatobiliary(request):
 
     activities = SurgeryActivity.objects.filter(
         fraternity="General Surgery Hepatobiliary",
-        status="done",
+        status="completed",
         year=selected_year,
         period=selected_period
     )
