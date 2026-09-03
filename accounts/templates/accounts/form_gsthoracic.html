@@ -4,13 +4,13 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Form - General Surgery (Thoracic) ({{ activity.period }} {{ activity.year }})</title>
+  <title>Form - Thoracic Surgery ({{ activity.period }} {{ activity.year }})</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
 </head>
 <body>
 <div class="container py-4">
-  <h2 class="text-center mb-4">General Surgery (Thoracic) — {{ activity.period }} {{ activity.year }}</h2>
+  <h2 class="text-center mb-4">Thoracic Surgery — {{ activity.period }} {{ activity.year }}</h2>
 
   {% if messages %}
     {% for message in messages %}
@@ -18,17 +18,14 @@
     {% endfor %}
   {% endif %}
 
-  <form id="gsThoracicForm" method="POST" novalidate>
+  <form id="gsthoracicForm" method="POST" novalidate>
     {% csrf_token %}
 
     <!-- STRUCTURE -->
     <h4>Metric Structure</h4>
     <table class="table table-bordered">
       <thead>
-        <tr>
-          <th>Domain</th><th>Performances Value</th><th>Target</th><th>Weight</th>
-          <th>Score(%)</th><th>Weighted Score</th><th>Index</th>
-        </tr>
+        <tr><th>Domain</th><th>Numerator</th><th>Denominator</th><th>Target</th><th>Weight</th><th>Score(%)</th><th>Weighted Score</th><th>Index</th></tr>
       </thead>
       <tbody>
       {% for domain in structure_domains %}
@@ -36,6 +33,7 @@
         <tr>
           <td>{{ domain }}</td>
           <td><input required type="number" min="0" step="1" class="form-control performances-value" name="structure_performances_{{ forloop.counter }}" value="{{ values.performances|default_if_none:'' }}"></td>
+          <td><input required type="number" min="0" step="1" class="form-control denominator-value" name="structure_denominator_{{ forloop.counter }}" value="{{ values.denominator|default_if_none:'' }}"></td>
           <td><input required type="number" min="0" step="1" class="form-control target" name="structure_target_{{ forloop.counter }}" value="{{ values.target|default_if_none:'' }}"></td>
           <td><input required type="number" min="0" max="1" step="0.01" class="form-control weight" name="structure_weight_{{ forloop.counter }}" value="{{ values.weight|default_if_none:'' }}"></td>
           <td><input type="text" class="form-control score" disabled value="{{ values.score|default_if_none:'' }}"></td>
@@ -59,10 +57,7 @@
     <h4>Metric Process</h4>
     <table class="table table-bordered">
       <thead>
-        <tr>
-          <th>Domain</th><th>Performances Value</th><th>Target</th><th>Weight</th>
-          <th>Score(%)</th><th>Weighted Score</th><th>Index</th>
-        </tr>
+        <tr><th>Domain</th><th>Numerator</th><th>Denominator</th><th>Target</th><th>Weight</th><th>Score(%)</th><th>Weighted Score</th><th>Index</th></tr>
       </thead>
       <tbody>
       {% for domain in process_domains %}
@@ -70,6 +65,7 @@
         <tr>
           <td>{{ domain }}</td>
           <td><input required type="number" min="0" step="1" class="form-control performances-value" name="process_performances_{{ forloop.counter }}" value="{{ values.performances|default_if_none:'' }}"></td>
+          <td><input required type="number" min="0" step="1" class="form-control denominator-value" name="process_denominator_{{ forloop.counter }}" value="{{ values.denominator|default_if_none:'' }}"></td>
           <td><input required type="number" min="0" step="1" class="form-control target" name="process_target_{{ forloop.counter }}" value="{{ values.target|default_if_none:'' }}"></td>
           <td><input required type="number" min="0" max="1" step="0.01" class="form-control weight" name="process_weight_{{ forloop.counter }}" value="{{ values.weight|default_if_none:'' }}"></td>
           <td><input type="text" class="form-control score" disabled value="{{ values.score|default_if_none:'' }}"></td>
@@ -93,10 +89,7 @@
     <h4>Metric Outcome</h4>
     <table class="table table-bordered">
       <thead>
-        <tr>
-          <th>Domain</th><th>Performances Value</th><th>Target</th><th>Weight</th>
-          <th>Score(%)</th><th>Weighted Score</th><th>Index</th>
-        </tr>
+        <tr><th>Domain</th><th>Numerator</th><th>Denominator</th><th>Target</th><th>Weight</th><th>Score(%)</th><th>Weighted Score</th><th>Index</th></tr>
       </thead>
       <tbody>
       {% for domain in outcome_domains %}
@@ -104,6 +97,7 @@
         <tr>
           <td>{{ domain }}</td>
           <td><input required type="number" min="0" step="1" class="form-control performances-value" name="outcome_performances_{{ forloop.counter }}" value="{{ values.performances|default_if_none:'' }}"></td>
+          <td><input required type="number" min="0" step="1" class="form-control denominator-value" name="outcome_denominator_{{ forloop.counter }}" value="{{ values.denominator|default_if_none:'' }}"></td>
           <td><input required type="number" min="0" step="1" class="form-control target" name="outcome_target_{{ forloop.counter }}" value="{{ values.target|default_if_none:'' }}"></td>
           <td><input required type="number" min="0" max="1" step="0.01" class="form-control weight" name="outcome_weight_{{ forloop.counter }}" value="{{ values.weight|default_if_none:'' }}"></td>
           <td><input type="text" class="form-control score" disabled value="{{ values.score|default_if_none:'' }}"></td>
@@ -125,6 +119,7 @@
 
     <div class="mb-4">
       <button type="submit" id="submitBtn" class="btn btn-success">Submit (Save & Mark Done)</button>
+      <!-- Butang Cancel dihala ke halaman senarai aktiviti Thoracic -->
       <a href="{% url 'gsthoracic_activities' %}" class="btn btn-secondary ms-2">Cancel</a>
     </div>
   </form>
@@ -136,58 +131,46 @@ function computeCategory(prefix, totalId) {
   const rows = document.querySelectorAll(`input[name^="${prefix}_performances_"]`);
   for (let i = 0; i < rows.length; i++) {
     const idx = i + 1;
-    const performances = parseInt(document.querySelector(`input[name="${prefix}_performances_${idx}"]`).value) || 0;
-    const target       = parseInt(document.querySelector(`input[name="${prefix}_target_${idx}"]`).value) || 0;
-    const weight       = parseFloat(document.querySelector(`input[name="${prefix}_weight_${idx}"]`).value) || 0;
-    let score = target > 0 ? (performances / target) * 100 : 0;
-    const weightedCents = Math.round(score * weight);
-    const weighted = weightedCents / 100;
-    const index    = Math.round(score) / 100;
+    const numerator   = parseFloat(document.querySelector(`input[name="${prefix}_performances_${idx}"]`).value) || 0;
+    const denominator = parseFloat(document.querySelector(`input[name="${prefix}_denominator_${idx}"]`).value) || 0;
+    const target      = parseFloat(document.querySelector(`input[name="${prefix}_target_${idx}"]`).value) || 0;
+    const weight      = parseFloat(document.querySelector(`input[name="${prefix}_weight_${idx}"]`).value) || 0;
+
+    let score = 0;
+    // Formula Numerator / Denominator
+    if (denominator > 0) { score = (numerator / denominator) * 100; }
+    let weighted = (score / 100) * weight;
+    let index    = score / 100;
+
     const tr = rows[i].closest('tr');
     tr.querySelector('.score').value          = score.toFixed(2);
     tr.querySelector('.weighted-score').value = weighted.toFixed(2);
     tr.querySelector('.index').value          = index.toFixed(2);
+
     const hscore  = document.querySelector(`input[name="${prefix}_score_${idx}"]`);
     const hwscore = document.querySelector(`input[name="${prefix}_wscore_${idx}"]`);
     const hindex  = document.querySelector(`input[name="${prefix}_index_${idx}"]`);
     if (hscore)  hscore.value  = score.toFixed(2);
     if (hwscore) hwscore.value = weighted.toFixed(2);
     if (hindex)  hindex.value  = index.toFixed(2);
-    totalCents += weightedCents;
+
+    totalCents += Math.round(weighted * 100);
   }
-  document.getElementById(totalId).innerText = (totalCents / 100).toFixed(2);
+  const total = totalCents / 100;
+  document.getElementById(totalId).innerText = total.toFixed(2);
+  return total;
 }
 
 document.getElementById('calculateStructureBtn').addEventListener('click', function(){ computeCategory('structure', 'totalSAOIStructure'); });
 document.getElementById('calculateProcessBtn').addEventListener('click',   function(){ computeCategory('process',   'totalSAOIProcess'); });
 document.getElementById('calculateOutcomeBtn').addEventListener('click',   function(){ computeCategory('outcome',   'totalSAOIOutcome'); });
-document.getElementById('gsThoracicForm').addEventListener('submit', function(){
+
+document.getElementById('gsthoracicForm').addEventListener('submit', function(){
   computeCategory('structure', 'totalSAOIStructure');
   computeCategory('process',   'totalSAOIProcess');
   computeCategory('outcome',   'totalSAOIOutcome');
 });
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-document.querySelectorAll('table tbody tr td:first-child').forEach(function(td) {
-  var text = td.textContent.trim();
-  var match = text.match(/^(.*?)\s*\((.+)\)\s*$/);
-  if (match) {
-    var mainText = match[1].trim();
-    var description = match[2].trim();
-    td.innerHTML =
-      mainText +
-      ' <span tabindex="0" data-bs-toggle="tooltip" data-bs-placement="right"' +
-      ' title="' + description.replace(/"/g, '&quot;') + '"' +
-      ' style="cursor:pointer;color:#0d6efd;font-size:0.85em;font-weight:bold;' +
-      'border:1px solid #0d6efd;border-radius:50%;display:inline-flex;' +
-      'align-items:center;justify-content:center;width:16px;height:16px;' +
-      'line-height:1;vertical-align:middle;flex-shrink:0;">i</span>';
-  }
-});
-document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function(el) {
-  new bootstrap.Tooltip(el);
-});
-</script>
 </body>
 </html>

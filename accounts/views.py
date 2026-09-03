@@ -2505,26 +2505,27 @@ def form_gsthoracic(request, activity_id):
 
     activity = get_object_or_404(SurgeryActivity, id=activity_id)
 
+    # Parameter Lama yang Terperinci (Dikekalkan)
     structure_domains = [
         "Number of FTE consultant thoracic surgeons (Ensures sufficient specialist availability for managing chest and pulmonary surgical cases)",
         "Dedicated thoracic operating theatre (Provides a safe and appropriately equipped environment for thoracic procedures)",
         "Availability of VATS equipment — video-assisted thoracoscopic surgery (Enables minimally invasive chest surgery with improved patient recovery)",
         "Pulmonary function testing facilities (Supports pre-operative respiratory assessment to guide surgical decision-making)",
-        "Thoracic ICU/HDU beds availability (Ensures adequate critical care capacity for post-thoracic surgery monitoring and recovery)",
+        "Thoracic ICU/HDU beds availability (Ensures adequate critical care capacity for post-thoracic surgery monitoring and recovery)"
     ]
     process_domains = [
         "MDT meetings for thoracic oncology (Ensures multidisciplinary review of lung and thoracic cancer cases before treatment)",
         "Pre-operative staging and imaging protocol compliance (Tracks completeness of radiological workup before thoracic surgery)",
         "Intraoperative bronchoscopy utilization (Measures use of airway visualization during thoracic procedures for safety and accuracy)",
         "Adherence to ERATS protocol — enhanced recovery after thoracic surgery (Tracks compliance with evidence-based recovery pathways to reduce length of stay)",
-        "Post-operative chest physiotherapy protocol adherence (Ensures respiratory rehabilitation is delivered to reduce pulmonary complications)",
+        "Post-operative chest physiotherapy protocol adherence (Ensures respiratory rehabilitation is delivered to reduce pulmonary complications)"
     ]
     outcome_domains = [
         "30-day surgical mortality rate (Rate of deaths within 30 days of thoracic surgical intervention)",
         "Rate of prolonged air leak greater than 7 days (Tracks a key post-operative complication following pulmonary resection)",
         "Post-operative pulmonary complication rate (Rate of respiratory adverse events such as pneumonia or atelectasis after thoracic surgery)",
         "Mean length of hospital stay (Average inpatient duration after thoracic surgery as an indicator of recovery efficiency)",
-        "Readmission rate within 30 days (Proportion of patients requiring hospital readmission within 30 days of thoracic surgery)",
+        "Readmission rate within 30 days (Proportion of patients requiring hospital readmission within 30 days of thoracic surgery)"
     ]
 
     details = SurgeryActivityDetail.objects.filter(activity=activity)
@@ -2533,6 +2534,7 @@ def form_gsthoracic(request, activity_id):
         key = f"{d.category}_{d.domain}"
         detail_dict[key] = {
             "performances": d.performances_value,
+            "denominator": d.denominator,  # Lajur denominator baharu
             "target": d.target,
             "weight": d.weight,
             "score": d.score,
@@ -2547,14 +2549,36 @@ def form_gsthoracic(request, activity_id):
             total = Decimal('0')
             for i, domain in enumerate(domains, start=1):
                 performances = request.POST.get(f"{category_name}_performances_{i}", "0")
+                denominator = request.POST.get(f"{category_name}_denominator_{i}", "0")
                 target = request.POST.get(f"{category_name}_target_{i}", "0")
                 weight = request.POST.get(f"{category_name}_weight_{i}", "0")
-                score_f, wscore_f, index_f = calculate_domain_scores(performances, target, weight)
+                
+                try: num_d = Decimal(str(performances))
+                except: num_d = Decimal('0')
+                try: den_d = Decimal(str(denominator))
+                except: den_d = Decimal('0')
+                try: wgt_d = Decimal(str(weight))
+                except: wgt_d = Decimal('0')
+                
+                if den_d > 0:
+                    score_d = (num_d / den_d) * Decimal('100')
+                    wscore_d = (num_d / den_d) * wgt_d
+                    index_d = num_d / den_d
+                else:
+                    score_d = Decimal('0')
+                    wscore_d = Decimal('0')
+                    index_d = Decimal('0')
+                    
+                score_f = float(score_d.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))
+                wscore_f = float(wscore_d.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))
+                index_f = float(index_d.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))
+
                 SurgeryActivityDetail.objects.create(
                     activity=activity,
                     category=category_name,
                     domain=domain,
                     performances_value=int(performances) if performances else 0,
+                    denominator=int(denominator) if denominator else 0,
                     target=int(target) if target else 0,
                     weight=float(weight) if weight else 0,
                     score=score_f,
@@ -2565,9 +2589,9 @@ def form_gsthoracic(request, activity_id):
             return float(total.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))
 
         activity.total_structure = save_category("structure", structure_domains)
-        activity.total_process   = save_category("process", process_domains)
-        activity.total_outcome   = save_category("outcome", outcome_domains)
-        activity.status = "done"
+        activity.total_process = save_category("process", process_domains)
+        activity.total_outcome = save_category("outcome", outcome_domains)
+        activity.status = "completed"
         activity.save()
 
         messages.success(request, "Data has been successfully saved.")
@@ -2589,7 +2613,7 @@ def dashboard_gsthoracic(request):
 
     activities = SurgeryActivity.objects.filter(
         fraternity="General Surgery Thoracic",
-        status="done",
+        status="done",  # <--- INI PERLU DITUKAR
         year=selected_year,
         period=selected_period
     )
