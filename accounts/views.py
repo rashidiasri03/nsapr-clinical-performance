@@ -2218,6 +2218,7 @@ def form_gshepatobiliary(request, activity_id):
 
     activity = get_object_or_404(SurgeryActivity, id=activity_id)
 
+    # Parameter Terbaru dari Excel V2 (28 Ogos)
     structure_domains = [
         "Annual campaign of HCC awareness",
         "Presence of Hepatitis screening for high-risk patient in primary health care",
@@ -2228,22 +2229,21 @@ def form_gshepatobiliary(request, activity_id):
         "Percentage of budget for HPB surgery that being proposed is being allocated",
         "Availability of NCR, NTRC and MyOrganMatch"
     ]
-
     process_domains = [
         "Presence of referral pathway of HCC patient to HPB surgery center",
-        "Percentage of HPB surgery center with MDT discussion for HCC (1)",
-        "Percentage of HPB surgery center with MDT discussion for HCC (2)",
+        "Percentage of HPB surgery center with MDT discussion for HCC",
+        "Percentage of referral to anaesthetist for pre-op assessment of pt undergoing surgery for HCC",
         "Percentage of informed consent by specialist for HCC surgery",
         "Percentage of SSSL check list compliancy for HCC surgery",
+        "Percentage of ASA score assessment",
         "Percentage of POMR reporting"
     ]
-
     outcome_domains = [
         "Percentage waiting time for surgery <1 month",
         "Reoperation Rate for HCC elective surgery",
         "30-Day Mortality Rate",
         "Surgical Site Infection rate",
-        "No of complaints received",
+        "Percentage of complaints received",
         "Time of referral to appointment within 2/52 - for HPB surgery clinic"
     ]
 
@@ -2253,12 +2253,76 @@ def form_gshepatobiliary(request, activity_id):
         key = f"{d.category}_{d.domain}"
         detail_dict[key] = {
             "performances": d.performances_value,
+            "denominator": d.denominator,  # ✅ WAJIB ADA UNTUK FORMULA BAHARU
             "target": d.target,
             "weight": d.weight,
             "score": d.score,
             "wscore": d.weighted_score,
             "index": d.index
         }
+
+    if request.method == "POST":
+        SurgeryActivityDetail.objects.filter(activity=activity).delete()
+
+        def save_category(category_name, domains):
+            total = Decimal('0')
+            for i, domain in enumerate(domains, start=1):
+                performances = request.POST.get(f"{category_name}_performances_{i}", "0")
+                denominator = request.POST.get(f"{category_name}_denominator_{i}", "0")
+                target = request.POST.get(f"{category_name}_target_{i}", "0")
+                weight = request.POST.get(f"{category_name}_weight_{i}", "0")
+                
+                try: num_d = Decimal(str(performances))
+                except: num_d = Decimal('0')
+                try: den_d = Decimal(str(denominator))
+                except: den_d = Decimal('0')
+                try: wgt_d = Decimal(str(weight))
+                except: wgt_d = Decimal('0')
+                
+                if den_d > 0:
+                    score_d = (num_d / den_d) * Decimal('100')
+                    wscore_d = (num_d / den_d) * wgt_d
+                    index_d = num_d / den_d
+                else:
+                    score_d = Decimal('0')
+                    wscore_d = Decimal('0')
+                    index_d = Decimal('0')
+                    
+                score_f = float(score_d.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))
+                wscore_f = float(wscore_d.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))
+                index_f = float(index_d.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))
+
+                SurgeryActivityDetail.objects.create(
+                    activity=activity,
+                    category=category_name,
+                    domain=domain,
+                    performances_value=int(performances) if performances else 0,
+                    denominator=int(denominator) if denominator else 0, # ✅ SIMPAN DENOMINATOR
+                    target=int(target) if target else 0,
+                    weight=float(weight) if weight else 0,
+                    score=score_f,
+                    weighted_score=wscore_f,
+                    index=index_f
+                )
+                total += Decimal(str(wscore_f))
+            return float(total.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))
+
+        activity.total_structure = save_category("structure", structure_domains)
+        activity.total_process = save_category("process", process_domains)
+        activity.total_outcome = save_category("outcome", outcome_domains)
+        activity.status = "completed"
+        activity.save()
+
+        messages.success(request, "Data has been successfully saved.")
+        return redirect('gshepatobiliary_activities')
+
+    return render(request, "accounts/form_gshepatobiliary.html", {
+        "activity": activity,
+        "structure_domains": structure_domains,
+        "process_domains": process_domains,
+        "outcome_domains": outcome_domains,
+        "detail_dict": detail_dict,
+    })
 
     if request.method == "POST":
         SurgeryActivityDetail.objects.filter(activity=activity).delete()
