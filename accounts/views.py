@@ -1704,42 +1704,46 @@ def add_gsbreast_endocrine_activity(request):
 def form_gsbreast_endocrine(request, activity_id):
     profile = getattr(request.user, 'profile', None)
     
-    # ✅ STRICT CHECK (superadmin bypasses)
     if not request.user.is_superuser and (not profile or profile.bidang_pembedahan != 'GENERAL SURGERY BREAST AND ENDOCRINE'):
         messages.error(request, "You do not have permission to access this form.")
         return redirect('gsbreast_endocrine_activities')
     
     activity = get_object_or_404(SurgeryActivity, id=activity_id)
 
+    # Parameter Terbaharu dari Excel B&E (Breast Ca) Final
     structure_domains = [
-        "Number of FTE consultant breast/endocrine surgeons (Ensures sufficient specialist capacity to manage breast and endocrine surgical cases)",
-        "Availability of breast imaging facilities — mammography, ultrasound (Supports accurate diagnosis and pre-surgical planning for breast conditions)",
-        "Dedicated breast clinic space (Provides a focused environment for assessment and follow-up of breast and endocrine patients)",
-        "Availability of biopsy equipment (Enables tissue sampling for definitive diagnosis of breast and endocrine lesions)",
-        "Pathology service for tissue diagnosis (Supports timely histological confirmation to guide surgical management)",
-        "MDT meeting structure for breast/endocrine cases (Facilitates multidisciplinary decision-making for complex or oncological cases)",
-        "Operating theatre with specialized equipment (Ensures safe and effective execution of breast and endocrine surgical procedures)",
-        "Availability of registered nurses trained in breast care (Supports safe perioperative care and patient education in breast surgery)",
-        "Clinical guidelines for breast and endocrine conditions (Standardizes management and reduces variation in clinical practice)",
-        "Documentation templates for breast/endocrine procedures (Promotes consistent and complete recording of clinical findings and interventions)"
+        "Breast Cancer Awareness Programme",
+        "Patient Navigation Program (PNP) in all tertiary centres with breast and endocrine services",
+        "Availability of a mobile screening unit for clinical breast assessment and imaging",
+        "Development of regional Intra-operative radiotherapy (IORT) centres in all 14 states",
+        "Availability of health promotion and education tools on breast cancer awareness in every Public Health Clinic",
+        "Dual method Sentinel Lymph Node Biopsy (SLNB) service in all 14 tertiary hospitals",
+        "Presence of trained health care promoters responsible for breast cancer awareness and activities",
+        "Availability of breast care navigators (BCN) for patient support in all 14 tertiary hospitals",
+        "Dedicated budget for Breast Cancer Awareness and Activities",
+        "A well developed mobile apps for patient education and primary care appointment scheduling",
+        "Implementation of hospital based breast cancer registry linked to the national cancer registry"
     ]
     
     process_domains = [
-        "Percentage of breast cancer cases discussed in MDT (Ensures all oncology cases receive multidisciplinary review before treatment)",
-        "Percentage of patients with documented informed consent (Verifies that patients are informed and agreement is recorded prior to surgery)",
-        "Percentage of surgical safety checklist compliance (Measures adherence to WHO safety protocols during breast and endocrine procedures)",
-        "Percentage of pre-operative assessment completed (Tracks thorough evaluation of patient fitness and readiness before surgery)",
-        "Percentage of post-operative review documented (Ensures clinical findings and recovery progress are recorded after surgery)",
-        "Time from diagnosis to surgery (Measures efficiency and timeliness of the surgical pathway from diagnosis to intervention)",
-        "Percentage of breast cancer patients with timely treatment (Tracks adherence to target treatment timelines to optimize oncology outcomes)"
+        "Outreach screening program",
+        "Referral of new suspected malignancy cases is to be seen within 2 weeks in surgical clinic",
+        "Percentage of new cases discussed in the MDT (Multidisciplinary Team) meeting",
+        "Informed consent by the incharge specialists of treatment plans for all patients",
+        "All surgeons involved in breast cancer management must obtain credentialing and privileging (C&P)",
+        "Pre-operative anaesthetic assessment clinic for all elective cases",
+        "Percentage of morbidity rate following elective breast surgeries",
+        "Use of peri-operative prophylactic antibiotics in patients who have received neoadjuvant chemotherapy"
     ]
     
     outcome_domains = [
-        "Percentage of post-operative complications (Rate of adverse events following breast and endocrine surgical procedures)",
-        "30-day mortality rate for breast/endocrine surgery (Rate of deaths within 30 days of breast or endocrine surgical intervention)",
-        "Patient satisfaction score (Measures patient-reported experience and satisfaction with breast and endocrine surgical care)",
-        "Re-operation rate (Proportion of patients requiring a second surgical intervention due to complications or incomplete resection)",
-        "Cancer recurrence rate (Rate of disease recurrence following surgical treatment for breast or endocrine malignancy)"
+        "Screening Mammogram coverage for women aged 50-74",
+        "Waiting time of first surgical clinic review within 2 weeks for new cases",
+        "Clear margins post breast conserving surgery",
+        "POMR Rate in elective cases",
+        "The surgical site infection rate post breast conserving surgery or mastectomy without reconstruction",
+        "The use of BREAST-Q questionnaire to assess patient satisfactory on cosmetic outcome",
+        "Time to initiation of first treatment (either surgery or chemotherapy) following diagnosis within 6 weeks"
     ]
 
     details = SurgeryActivityDetail.objects.filter(activity=activity)
@@ -1748,6 +1752,7 @@ def form_gsbreast_endocrine(request, activity_id):
         key = f"{d.category}_{d.domain}"
         detail_dict[key] = {
             "performances": d.performances_value,
+            "denominator": d.denominator,
             "target": d.target,
             "weight": d.weight,
             "score": d.score,
@@ -1762,16 +1767,36 @@ def form_gsbreast_endocrine(request, activity_id):
             total = Decimal('0')
             for i, domain in enumerate(domains, start=1):
                 performances = request.POST.get(f"{category_name}_performances_{i}", "0")
+                denominator = request.POST.get(f"{category_name}_denominator_{i}", "0")
                 target = request.POST.get(f"{category_name}_target_{i}", "0")
                 weight = request.POST.get(f"{category_name}_weight_{i}", "0")
 
-                score_f, wscore_f, index_f = calculate_domain_scores(performances, target, weight)
+                try: num_d = Decimal(str(performances))
+                except: num_d = Decimal('0')
+                try: den_d = Decimal(str(denominator))
+                except: den_d = Decimal('0')
+                try: wgt_d = Decimal(str(weight))
+                except: wgt_d = Decimal('0')
+                
+                if den_d > 0:
+                    score_d = (num_d / den_d) * Decimal('100')
+                    wscore_d = (num_d / den_d) * wgt_d
+                    index_d = num_d / den_d
+                else:
+                    score_d = Decimal('0')
+                    wscore_d = Decimal('0')
+                    index_d = Decimal('0')
+                    
+                score_f = float(score_d.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))
+                wscore_f = float(wscore_d.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))
+                index_f = float(index_d.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))
 
                 SurgeryActivityDetail.objects.create(
                     activity=activity,
                     category=category_name,
                     domain=domain,
                     performances_value=int(performances) if performances else 0,
+                    denominator=int(denominator) if denominator else 0,
                     target=int(target) if target else 0,
                     weight=float(weight) if weight else 0,
                     score=score_f,
@@ -1784,7 +1809,7 @@ def form_gsbreast_endocrine(request, activity_id):
         activity.total_structure = save_category("structure", structure_domains)
         activity.total_process = save_category("process", process_domains)
         activity.total_outcome = save_category("outcome", outcome_domains)
-        activity.status = "done"
+        activity.status = "completed"
         activity.save()
 
         messages.success(request, "Data has been successfully saved.")
@@ -1806,7 +1831,7 @@ def dashboard_gsbreast_endocrine(request):
 
     activities = SurgeryActivity.objects.filter(
         fraternity="General Surgery Breast and Endocrine",
-        status="done",
+        status="completed",
         year=selected_year,
         period=selected_period
     )
