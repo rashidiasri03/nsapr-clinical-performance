@@ -7,8 +7,6 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-  <!-- Modern Google Font -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 </head>
 
@@ -16,36 +14,22 @@
 
 <div class="container dashboard-container">
 
-<!-- HEADER CARD -->
 <div class="header-card animate-fade mb-4">
   <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-
     <div>
-      <h2 class="dashboard-title mb-1">
-        Family Medicine — Dashboard
-      </h2>
-      <div class="dashboard-subtitle">
-        Performance Summary & SAOI Indicators
-      </div>
+      <h2 class="dashboard-title mb-1">Family Medicine — Dashboard</h2>
+      <div class="dashboard-subtitle">Performance Summary & SAOI Indicators</div>
     </div>
-
     <div class="text-end">
       <small class="filter-hint">Filter: Year & Period</small>
-
       <div class="d-flex gap-2 justify-content-end mt-2">
-        <button class="btn-theme" onclick="toggleTheme()">
-          🌙 Dark
-        </button>
-        <a class="btn-back" href="{% url 'family_medicine' %}">
-          ← Back
-        </a>
+        <button class="btn-theme" onclick="toggleTheme()">🌙 Dark</button>
+        <a class="btn-back" href="{% url 'family_medicine' %}">← Back</a>
       </div>
     </div>
-
   </div>
 </div>
 
-<!-- FILTER SECTION -->
 <div class="filter-box shadow-sm p-3 mb-4">
 <form id="filterForm" class="row g-3 align-items-center">
     <div class="col-md-3">
@@ -56,7 +40,6 @@
         {% endfor %}
       </select>
     </div>
-
     <div class="col-md-3">
       <label class="form-label fw-semibold">Period</label>
       <select id="periodSelect" class="form-select modern-select">
@@ -67,15 +50,12 @@
 </form>
 </div>
 
-<!-- GAUGE CHARTS (Structure / Process / Outcome) -->
 <div class="row g-4 text-center mb-4">
-
   <div class="col-md-3">
     <div class="chart-card shadow-sm">
       <h6>Structure (50%)</h6>
       <canvas id="gaugeStructure" height="150"></canvas>
       <div class="gauge-label">{{ total_structure_raw|floatformat:2 }}</div>
-      <small class="text-muted">(Weighted: {{ total_structure|floatformat:2 }})</small>
     </div>
   </div>
 
@@ -84,7 +64,6 @@
       <h6>Process (30%)</h6>
       <canvas id="gaugeProcess" height="150"></canvas>
       <div class="gauge-label">{{ total_process_raw|floatformat:2 }}</div>
-      <small class="text-muted">(Weighted: {{ total_process|floatformat:2 }})</small>
     </div>
   </div>
 
@@ -93,11 +72,9 @@
       <h6>Outcome (20%)</h6>
       <canvas id="gaugeOutcome" height="150"></canvas>
       <div class="gauge-label">{{ total_outcome_raw|floatformat:2 }}</div>
-      <small class="text-muted">(Weighted: {{ total_outcome|floatformat:2 }})</small>
     </div>
   </div>
 
-  <!-- OVERALL RING -->
   <div class="col-md-3">
     <div class="chart-card shadow-sm">
       <h6>Overall SAOI Index</h6>
@@ -105,10 +82,8 @@
       <div class="gauge-label">{{ overall_index|floatformat:2 }}</div>
     </div>
   </div>
-
 </div>
 
-<!-- LEGEND -->
 <div class="legend-box text-center mb-4">
   <span class="legend-item" style="background:#1abc9c;">> 0.80 Optimised</span>
   <span class="legend-item" style="background:#2ecc71;">0.60 – 0.79 Good</span>
@@ -116,10 +91,8 @@
   <span class="legend-item" style="background:#e74c3c;">< 0.40 Underperforming</span>
 </div>
 
-<!-- TABLE -->
 <div class="card p-3 shadow-sm mt-4">
     <h5 class="fw-bold mb-3">Detailed Domain Breakdown</h5>
-
     <div class="table-responsive">
       <table class="table table-hover table-striped align-middle modern-table">
         <thead>
@@ -141,7 +114,7 @@
             <td>{{ row.category }}</td>
             <td>{{ row.domain }}</td>
             <td>{{ row.performances_value }}</td>
-            <td>{{ row.denominator|default_if_none:"0" }}</td>
+            <td>{{ row.target }}</td>
             <td>{{ row.target }}</td>
             <td>{{ row.weight }}</td>
             <td>{{ row.score }}</td>
@@ -158,9 +131,7 @@
     </div>
 </div>
 
-<!-- JAVASCRIPT + CHART.JS -->
 <script>
-/* AUTO FILTER */
 function applyFilter() {
   const y = document.getElementById('yearSelect').value;
   const p = document.getElementById('periodSelect').value;
@@ -172,16 +143,11 @@ function applyFilter() {
 document.getElementById('yearSelect').addEventListener('change', applyFilter);
 document.getElementById('periodSelect').addEventListener('change', applyFilter);
 
-
-/* DATA INSERT */
 const totalStructure = parseFloat("{{ total_structure_raw|floatformat:2 }}") || 0;
 const totalProcess   = parseFloat("{{ total_process_raw|floatformat:2 }}") || 0;
 const totalOutcome   = parseFloat("{{ total_outcome_raw|floatformat:2 }}") || 0;
 const overallIndex   = parseFloat("{{ overall_index|floatformat:2 }}") || 0;
 
-/********************************************************
- GAUGE NEEDLE PLUGIN
-********************************************************/
 const gaugeNeedle = {
     id: "gaugeNeedle",
     afterDraw(chart) {
@@ -208,9 +174,6 @@ const gaugeNeedle = {
     }
 };
 
-/********************************************************
- CREATE GAUGE
-********************************************************/
 function createGauge(id, value) {
     new Chart(document.getElementById(id), {
         type: "doughnut",
@@ -238,9 +201,6 @@ createGauge("gaugeStructure", totalStructure);
 createGauge("gaugeProcess", totalProcess);
 createGauge("gaugeOutcome", totalOutcome);
 
-/********************************************************
- RING FOR SAOI OVERALL INDEX
-********************************************************/
 function getColor(value) {
     if (value > 0.80) return "#1abc9c";
     if (value >= 0.60) return "#2ecc71";
