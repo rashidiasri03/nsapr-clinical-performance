@@ -9,11 +9,9 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 </head>
-
 <body>
-
 <div class="container dashboard-container">
-
+<!-- HEADER CARD -->
 <div class="header-card animate-fade mb-4">
   <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
     <div>
@@ -30,6 +28,7 @@
   </div>
 </div>
 
+<!-- FILTER SECTION -->
 <div class="filter-box shadow-sm p-3 mb-4">
 <form id="filterForm" class="row g-3 align-items-center">
     <div class="col-md-3">
@@ -50,31 +49,33 @@
 </form>
 </div>
 
+<!-- GAUGE CHARTS -->
 <div class="row g-4 text-center mb-4">
   <div class="col-md-3">
     <div class="chart-card shadow-sm">
       <h6>Structure (50%)</h6>
       <canvas id="gaugeStructure" height="150"></canvas>
       <div class="gauge-label">{{ total_structure_raw|floatformat:2 }}</div>
+      <small class="text-muted">(Max: 1.00)</small>
     </div>
   </div>
-
   <div class="col-md-3">
     <div class="chart-card shadow-sm">
       <h6>Process (30%)</h6>
       <canvas id="gaugeProcess" height="150"></canvas>
       <div class="gauge-label">{{ total_process_raw|floatformat:2 }}</div>
+      <small class="text-muted">(Max: 1.00)</small>
     </div>
   </div>
-
   <div class="col-md-3">
     <div class="chart-card shadow-sm">
       <h6>Outcome (20%)</h6>
       <canvas id="gaugeOutcome" height="150"></canvas>
       <div class="gauge-label">{{ total_outcome_raw|floatformat:2 }}</div>
+      <small class="text-muted">(Max: 1.00)</small>
     </div>
   </div>
-
+  <!-- OVERALL RING -->
   <div class="col-md-3">
     <div class="chart-card shadow-sm">
       <h6>Overall SAOI Index</h6>
@@ -84,6 +85,7 @@
   </div>
 </div>
 
+<!-- LEGEND -->
 <div class="legend-box text-center mb-4">
   <span class="legend-item" style="background:#1abc9c;">> 0.80 Optimised</span>
   <span class="legend-item" style="background:#2ecc71;">0.60 – 0.79 Good</span>
@@ -91,6 +93,7 @@
   <span class="legend-item" style="background:#e74c3c;">< 0.40 Underperforming</span>
 </div>
 
+<!-- TABLE -->
 <div class="card p-3 shadow-sm mt-4">
     <h5 class="fw-bold mb-3">Detailed Domain Breakdown</h5>
     <div class="table-responsive">
@@ -114,7 +117,7 @@
             <td>{{ row.category }}</td>
             <td>{{ row.domain }}</td>
             <td>{{ row.performances_value }}</td>
-            <td>{{ row.target }}</td>
+            <td>{{ row.denominator|default_if_none:"0" }}</td>
             <td>{{ row.target }}</td>
             <td>{{ row.weight }}</td>
             <td>{{ row.score }}</td>
@@ -122,9 +125,7 @@
             <td>{{ row.index }}</td>
           </tr>
           {% empty %}
-          <tr>
-            <td colspan="9" class="text-center py-3">No data for selected year/period.</td>
-          </tr>
+          <tr><td colspan="9" class="text-center py-3">No data for selected year/period.</td></tr>
           {% endfor %}
         </tbody>
       </table>
@@ -218,16 +219,10 @@ new Chart(document.getElementById("overallRing"), {
         }]
     },
     options: {
-        plugins: {
-            legend: { display: false },
-            tooltip: { enabled: false }
-        }
+        plugins: { legend: { display: false }, tooltip: { enabled: false } }
     }
 });
-
-function toggleTheme() {
-  document.body.classList.toggle("dark");
-}
+function toggleTheme() { document.body.classList.toggle("dark"); }
 </script>
 </div>
 </body>
