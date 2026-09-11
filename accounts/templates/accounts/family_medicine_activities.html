@@ -1,64 +1,95 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>Family Medicine Activities</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+    <title>Family Medicine – Activities</title>
+
+    <!-- Link CSS -->
+    <link rel="stylesheet" href="{% static 'css/activities.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        .message-container {
+            max-width: 800px;
+            margin: 20px auto;
+        }
+        .alert {
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .alert-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+    </style>
 </head>
+
 <body>
-<div class="container py-4">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>Family Medicine Activities ({{ year }})</h2>
-    <div>
-      <a href="{% url 'dashboard_family_medicine' %}" class="btn btn-info me-2">View Dashboard</a>
-      <a href="{% url 'add_family_medicine_activity' %}" class="btn btn-primary">Add New Activity</a>
-      <a href="{% url 'fraternity' %}" class="btn btn-secondary">Back to Menu</a>
+
+    <h2 class="title">Family Medicine – Activities</h2>
+
+    <!-- MESSAGES DISPLAY -->
+    {% if messages %}
+        <div class="message-container">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="activity-wrapper">
+
+        {% for a in activities %}
+        <div class="activity-card">
+
+            <!-- TEXT -->
+            <div class="activity-text">
+                {{ a.period }} &nbsp; {{ a.year }}
+            </div>
+
+            <!-- BUTTONS -->
+            <div class="activity-buttons">
+            
+                {% if a.status == "not_started" %}
+                    <a href="{% url 'form_family_medicine' a.id %}" class="btn btn-start">START</a>
+
+                {% elif a.status == "in_progress" %}
+                    <a href="{% url 'form_family_medicine' a.id %}" class="btn btn-continue">CONTINUE</a>
+
+                {% else %}
+                    <button class="btn btn-done" disabled>DONE</button>
+                    <a href="{% url 'form_family_medicine' a.id %}" class="btn btn-edit">EDIT</a>
+                {% endif %}
+            </div>
+
+        </div>
+        {% empty %}
+        <div class="text-center w-100" style="padding: 20px; font-family: 'Poppins', sans-serif;">
+            No activities created yet for this year.
+        </div>
+        {% endfor %}
+
     </div>
-  </div>
 
-  {% if messages %}
-    {% for message in messages %}
-      <div class="alert alert-{{ message.tags|default:'info' }}">{{ message }}</div>
-    {% endfor %}
-  {% endif %}
-
-  <table class="table table-bordered table-striped">
-    <thead class="table-dark">
-      <tr>
-        <th>Year</th>
-        <th>Period</th>
-        <th>Status</th>
-        <th>Action</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for act in activities %}
-      <tr>
-        <td>{{ act.year }}</td>
-        <td>{{ act.period }}</td>
-        <td>
-          {% if act.status == 'completed' %}
-            <span class="badge bg-success">Completed</span>
-          {% else %}
-            <span class="badge bg-warning text-dark">Not Started</span>
-          {% endif %}
-        </td>
-        <td>
-          <a href="{% url 'form_family_medicine' act.id %}" class="btn btn-sm btn-primary">
-            {% if act.status == 'completed' %}Edit Form{% else %}Fill Form{% endif %}
-          </a>
-        </td>
-      </tr>
-      {% empty %}
-      <tr>
-        <td colspan="4" class="text-center">No activities found for this year.</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <div class="add-btn-container">
+        <a href="{% url 'add_family_medicine_activity' %}" class="btn-add">Add</a>
+    </div>
+    <div class="back-link">
+        <a href="{% url 'family_medicine' %}">&larr; Back</a>
+    </div>
 </body>
 </html>
