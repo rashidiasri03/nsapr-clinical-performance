@@ -133,10 +133,11 @@ urlpatterns = [
     #path("add-gscolorectal-activity/", views.add_gscolorectal_activity, name="add_gscolorectal_activity"),
     #path("fraternity/gscolorectal/form/<int:activity_id>/", views.form_gscolorectal, name="form_gscolorectal"),
 
-    path("family_medicine/", views.family_medicine, name="family_medicine"),
-    #path("gscolorectal_activities/", views.gscolorectal_activities, name="gscolorectal_activities"),
-    #path("add-gscolorectal-activity/", views.add_gscolorectal_activity, name="add_gscolorectal_activity"),
-    #path("fraternity/gscolorectal/form/<int:activity_id>/", views.form_gscolorectal, name="form_gscolorectal"),
+    path('family_medicine/', views.family_medicine, name='family_medicine'),
+    path('family_medicine/activities/', views.family_medicine_activities, name='family_medicine_activities'),
+    path('family_medicine/activities/add/', views.add_family_medicine_activity, name='add_family_medicine_activity'),
+    path('family_medicine/form/<int:activity_id>/', views.form_family_medicine, name='form_family_medicine'),
+    path('family_medicine/dashboard/', views.dashboard_family_medicine, name='dashboard_family_medicine'),
 
 
 
