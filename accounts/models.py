@@ -13,6 +13,7 @@ class Profile(models.Model):
         ('GENERAL SURGERY VASCULAR', 'General Surgery Vascular'),
         ('GENERAL SURGERY HEPATOBILIARY', 'General Surgery Hepatobiliary'),
         ('GENERAL SURGERY THORACIC', 'General Surgery Thoracic'),
+        ('CARDIOTHORACIC SURGERY', 'Cardiothoracic Surgery'),
     ]
     
     user = models.OneToOneField(User, on_delete=models.CASCADE)

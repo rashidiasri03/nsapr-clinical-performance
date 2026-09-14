@@ -2946,9 +2946,239 @@ def dashboard_paediatric(request):
     }
     return render(request, "accounts/dashboard_paediatric.html", context)
 
+# =============================================
+# CARDIOTHORACIC SURGERY (CTC - CABG)
+# =============================================
 @login_required
 def cardiothoracic(request):
     return render(request, 'accounts/cardiothoracic.html')
+
+@login_required
+def cardiothoracic_activities(request):
+    year = datetime.now().year
+    activities = SurgeryActivity.objects.filter(
+        fraternity="Cardiothoracic Surgery",
+        year=year
+    ).annotate(
+        period_order=Case(
+            When(period='Jan-Jun', then=1),
+            When(period='Jul-Dec', then=2),
+            default=3,
+            output_field=IntegerField()
+        )
+    ).order_by('period_order')
+    return render(request, 'accounts/cardiothoracic_activities.html', {
+        'activities': activities,
+        'year': year,
+    })
+
+@login_required
+def add_cardiothoracic_activity(request):
+    profile = getattr(request.user, 'profile', None)
+    if not request.user.is_superuser and (not profile or profile.bidang_pembedahan != 'CARDIOTHORACIC SURGERY'):
+        messages.error(request, "You do not have permission to add this activity.")
+        return redirect('cardiothoracic_activities')
+
+    current_year = datetime.now().year
+    existing = SurgeryActivity.objects.filter(
+        fraternity="Cardiothoracic Surgery",
+        year=current_year
+    ).count()
+
+    if existing == 0:
+        period = "Jan-Jun"
+    elif existing == 1:
+        period = "Jul-Dec"
+    else:
+        messages.error(request, "The activities for this year are already complete.")
+        return redirect('cardiothoracic_activities')
+
+    activity, created = SurgeryActivity.objects.get_or_create(
+        fraternity="Cardiothoracic Surgery",
+        year=current_year,
+        period=period,
+        defaults={'status': 'not_started'}
+    )
+    activity.users.add(request.user)
+    messages.success(request, f"Activity {period} {current_year} created successfully!")
+    return redirect('cardiothoracic_activities')
+
+@login_required
+def form_cardiothoracic(request, activity_id):
+    profile = getattr(request.user, 'profile', None)
+    if not request.user.is_superuser and (not profile or profile.bidang_pembedahan != 'CARDIOTHORACIC SURGERY'):
+        messages.error(request, "You do not have permission to access this form.")
+        return redirect('cardiothoracic_activities')
+
+    activity = get_object_or_404(SurgeryActivity, id=activity_id)
+
+    # Parameter dari Excel CTC (CABG)
+    structure_domains = [
+        "National Cardiothoracic Surgery Policy",
+        "Fully equipped Cardiothoracic Surgical Centers according to National Policy and International Standards.",
+        "Latest, specialised and functional equipments(Flow meter / IABP / ECMO / LVAD) in all MOH Cardiothoracic Surgical centers (according to international standards)",
+        "Adequate number of surgeon/ man power in all Cardiothoracic Centers. ( according to National Policy and International Standard) One surgeon for 170 000 population",
+        "RM 150 000 perCABG should be allocated",
+        "CTC facilities with integrated medical system"
+    ]
+    process_domains = [
+        "All cases for CABG should be referred within 3 months.",
+        "No cancellation cases for CABG due to uncontrolled diabetes",
+        "Refusal of CABG after consultation in Cardiothoracic Center should be less than 1%",
+        "According to SSSL protocol",
+        "All-cause death before discharge from the hospital or within 30 days of the procedure.",
+        "A surgical site infection (SSI) is an infection occurring in the part of the body where surgery took place, typically within 30 days after the procedure. Caused by bacteria entering incisions, symptoms include redness, swelling, pain, warmth, and fever. Treatment involves antibiotics and, often, wound drainage."
+    ]
+    outcome_domains = [
+        "Access to CABG in MOH facilities",
+        "POMR should be < 4% in high volume center, and < 7% in low volume center..",
+        "Return of questionnaire should be more than 90%",
+        "Patients will go back to normal life after CABG"
+    ]
+
+    details = SurgeryActivityDetail.objects.filter(activity=activity)
+    detail_dict = {}
+    for d in details:
+        key = f"{d.category}_{d.domain}"
+        detail_dict[key] = {
+            "performances": d.performances_value,
+            "denominator": d.denominator,
+            "target": d.target,
+            "weight": d.weight,
+            "score": d.score,
+            "wscore": d.weighted_score,
+            "index": d.index
+        }
+
+    if request.method == "POST":
+        SurgeryActivityDetail.objects.filter(activity=activity).delete()
+
+        def save_category(category_name, domains):
+            total = Decimal('0')
+            for i, domain in enumerate(domains, start=1):
+                performances = request.POST.get(f"{category_name}_performances_{i}", "0")
+                denominator = request.POST.get(f"{category_name}_denominator_{i}", "0")
+                target = request.POST.get(f"{category_name}_target_{i}", "0")
+                weight = request.POST.get(f"{category_name}_weight_{i}", "0")
+                
+                try: num_d = Decimal(str(performances))
+                except: num_d = Decimal('0')
+                try: den_d = Decimal(str(denominator))
+                except: den_d = Decimal('0')
+                try: wgt_d = Decimal(str(weight))
+                except: wgt_d = Decimal('0')
+                
+                if den_d > 0:
+                    score_d = (num_d / den_d) * Decimal('100')
+                    wscore_d = (num_d / den_d) * wgt_d
+                    index_d = num_d / den_d
+                else:
+                    score_d = Decimal('0')
+                    wscore_d = Decimal('0')
+                    index_d = Decimal('0')
+                    
+                score_f = float(score_d.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))
+                wscore_f = float(wscore_d.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))
+                index_f = float(index_d.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))
+
+                SurgeryActivityDetail.objects.create(
+                    activity=activity,
+                    category=category_name,
+                    domain=domain,
+                    performances_value=int(performances) if performances else 0,
+                    denominator=int(denominator) if denominator else 0,
+                    target=int(target) if target else 0,
+                    weight=float(weight) if weight else 0,
+                    score=score_f,
+                    weighted_score=wscore_f,
+                    index=index_f
+                )
+                total += Decimal(str(wscore_f))
+            return float(total.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))
+
+        activity.total_structure = save_category("structure", structure_domains)
+        activity.total_process = save_category("process", process_domains)
+        activity.total_outcome = save_category("outcome", outcome_domains)
+        activity.status = "completed"
+        activity.save()
+
+        messages.success(request, "Data has been successfully saved.")
+        return redirect('cardiothoracic_activities')
+
+    return render(request, "accounts/form_cardiothoracic.html", {
+        "activity": activity,
+        "structure_domains": structure_domains,
+        "process_domains": process_domains,
+        "outcome_domains": outcome_domains,
+        "detail_dict": detail_dict,
+    })
+
+@login_required
+def dashboard_cardiothoracic(request):
+    selected_year = int(request.GET.get('year', datetime.now().year))
+    selected_period = request.GET.get('period', 'Jan-Jun')
+
+    activities = SurgeryActivity.objects.filter(
+        fraternity="Cardiothoracic Surgery",
+        status="completed",
+        year=selected_year,
+        period=selected_period
+    )
+
+    if not activities.exists():
+        context = {
+            "selected_year": selected_year,
+            "selected_period": selected_period,
+            "years": list(range(2020, datetime.now().year + 2)),
+            "total_structure_raw": 0,
+            "total_process_raw": 0,
+            "total_outcome_raw": 0,
+            "total_structure": 0,
+            "total_process": 0,
+            "total_outcome": 0,
+            "overall_index": 0,
+            "domain_rows": [],
+        }
+        return render(request, "accounts/dashboard_cardiothoracic.html", context)
+
+    activity = activities.first()
+    details = SurgeryActivityDetail.objects.filter(activity=activity)
+
+    total_structure_raw = min(float(sum(details.filter(category="structure").values_list("weighted_score", flat=True)) or 0.0), 1.0)
+    total_process_raw = min(float(sum(details.filter(category="process").values_list("weighted_score", flat=True)) or 0.0), 1.0)
+    total_outcome_raw = min(float(sum(details.filter(category="outcome").values_list("weighted_score", flat=True)) or 0.0), 1.0)
+
+    # Pemberat Excel Cardiothoracic: 0.5, 0.3, 0.2
+    total_structure = total_structure_raw * 0.5
+    total_process = total_process_raw * 0.3
+    total_outcome = total_outcome_raw * 0.2
+    overall_index = min(total_structure + total_process + total_outcome, 1.0)
+
+    domain_rows = [{
+        "category": d.category.capitalize(),
+        "domain": d.domain,
+        "performances_value": d.performances_value,
+        "target": d.target,
+        "weight": d.weight,
+        "score": d.score,
+        "weighted_score": d.weighted_score,
+        "index": d.index,
+    } for d in details]
+
+    context = {
+        "total_structure_raw": round(total_structure_raw, 2),
+        "total_process_raw": round(total_process_raw, 2),
+        "total_outcome_raw": round(total_outcome_raw, 2),
+        "total_structure": round(total_structure, 2),
+        "total_process": round(total_process, 2),
+        "total_outcome": round(total_outcome, 2),
+        "overall_index": round(overall_index, 2),
+        "domain_rows": domain_rows,
+        "years": list(range(2020, datetime.now().year + 2)),
+        "selected_year": selected_year,
+        "selected_period": selected_period,
+    }
+    return render(request, "accounts/dashboard_cardiothoracic.html", context)
 
 @login_required
 def obstetrics_gynaecology(request):

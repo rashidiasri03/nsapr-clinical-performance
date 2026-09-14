@@ -90,10 +90,11 @@ urlpatterns = [
     path("paediatric/form/<int:activity_id>/", views.form_paediatric, name="form_paediatric"),
     path("paediatric/dashboard/", views.dashboard_paediatric, name="dashboard_paediatric"),
 
-    path("cardiothoracic/", views.cardiothoracic, name="cardiothoracic"),
-    #path("gscolorectal_activities/", views.gscolorectal_activities, name="gscolorectal_activities"),
-    #path("add-gscolorectal-activity/", views.add_gscolorectal_activity, name="add_gscolorectal_activity"),
-    #path("fraternity/gscolorectal/form/<int:activity_id>/", views.form_gscolorectal, name="form_gscolorectal"),
+    path('cardiothoracic/', views.cardiothoracic, name='cardiothoracic'),
+    path('cardiothoracic/activities/', views.cardiothoracic_activities, name='cardiothoracic_activities'),
+    path('cardiothoracic/activities/add/', views.add_cardiothoracic_activity, name='add_cardiothoracic_activity'),
+    path('cardiothoracic/form/<int:activity_id>/', views.form_cardiothoracic, name='form_cardiothoracic'),
+    path('cardiothoracic/dashboard/', views.dashboard_cardiothoracic, name='dashboard_cardiothoracic'),
 
     path("obstetrics_gynaecology/", views.obstetrics_gynaecology, name="obstetrics_gynaecology"),
     #path("gscolorectal_activities/", views.gscolorectal_activities, name="gscolorectal_activities"),
