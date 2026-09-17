@@ -726,60 +726,59 @@ def add_ophthalmology_activity(request):
 @login_required
 def form_ophthalmology(request, activity_id):
     profile = getattr(request.user, 'profile', None)
-    
-    # ✅ STRICT CHECK (superadmin bypasses)
     if not request.user.is_superuser and (not profile or profile.bidang_pembedahan != 'OPHTHALMOLOGY'):
         messages.error(request, "You do not have permission to access this form.")
         return redirect('ophthalmology_activities')
     
     activity = get_object_or_404(SurgeryActivity, id=activity_id)
 
+    # Parameter sedia ada (Boleh ditukar jika anda ada senarai baharu kelak)
     structure_domains = [
-        "KOSPEN cataract finder policy (Written policy ensuring all KOSPEN group members are trained as cataract finders, per National Sensory Health Policy)",
-        "Vision screening for patients above 60 years at KK (All patients above 60 years old attending KK to be checked for visual impairment)",
-        "Referral of low vision patients to primary care optometrist (All patients above 60 with vision worse than 6/12 to be referred to primary care optometrist)",
-        "MOH Cataract Management Pathway guideline (Established guideline based on WHO for all hospitals with Ophthalmology Services)",
-        "Refraction room for optometrist at Level 1 KK (All Level 1 KK to have dedicated refraction room for optometrist)",
-        "Dedicated ultraclean ophthalmology operating theatre (All hospitals with ophthalmologist to have daycare surgery facilities per infection control policy)",
-        "Klinik Katarak KKM mobile set availability (Available in East Coast, Sabah and Sarawak to extend cataract surgical access)",
-        "RALoV Flip Chart availability (Rapid Assessment for Low Vision chart for adults, distributed per clinic)",
-        "Smart vision chart per clinic (At least 1 smart vision chart or RALoV Flip Chart available at every clinic)",
-        "Slit lamp per clinic (At least 1 slit lamp available at every clinic for anterior segment examination)",
-        "Refraction set and optometrist examination chair per clinic (At least 1 set per clinic to support routine eye examination)",
-        "Fully equipped hospital facilities for optometrist (Hospital with Optometrist but no ophthalmologist to meet minimum facility standards)",
-        "Hospital with ophthalmologist or permanent cataract outreach (Facilities supporting outreach cataract surgery at designated KKM centres)",
-        "KOSPEN centres with trained cataract finders and RALoV Chart (All community centres with KOSPEN to have at least 2 trained cataract finders)",
-        "Level 1 KK with optometrist per state (Every state to have at least 2 Level 1 KK with optometrist, except Perlis)",
-        "Minimum optometrist staffing for ophthalmology clinics (5 optometrists for non-state hospitals, 10 for state hospitals, based on WISN norm)",
-        "Budget for Annual Primary Eye Care Training (Funding allocated for FMS training every cycle of C&P, for every state)",
-        "National ToT for phaco trainers (National Training of Trainers programme for phacoemulsification surgical training)",
-        "MySejahtera vision screening question (MySejahtera platform to include at least one question on patient vision status)",
-        "Patient journey mapping for cataract (Documented cataract patient pathway from screening to surgical outcome)"
+        "KOSPEN cataract finder policy (Written policy ensuring all KOSPEN group members are trained as cataract finders)",
+        "Vision screening for patients above 60 years at KK",
+        "Referral of low vision patients to primary care optometrist",
+        "MOH Cataract Management Pathway guideline",
+        "Refraction room for optometrist at Level 1 KK",
+        "Dedicated ultraclean ophthalmology operating theatre",
+        "Klinik Katarak KKM mobile set availability",
+        "RALoV Flip Chart availability",
+        "Smart vision chart per clinic",
+        "Slit lamp per clinic",
+        "Refraction set and optometrist examination chair per clinic",
+        "Fully equipped hospital facilities for optometrist",
+        "Hospital with ophthalmologist or permanent cataract outreach",
+        "KOSPEN centres with trained cataract finders and RALoV Chart",
+        "Level 1 KK with optometrist per state",
+        "Minimum optometrist staffing for ophthalmology clinics",
+        "Budget for Annual Primary Eye Care Training",
+        "National ToT for phaco trainers",
+        "MySejahtera vision screening question",
+        "Patient journey mapping for cataract"
     ]
     
     process_domains = [
-        "Cataract patients referred to KK and seen (Number of patients with cataract referred to Klinik Kesihatan and attended their appointment)",
-        "Cataract patients referred to eye clinic and seen (Number of patients referred to eye clinic and successfully seen at KKKKM)",
-        "Cataract surgery waiting time (Target of less than 6 months from referral to surgery)",
-        "Cancellation rate of elective cataract surgery (Proportion of scheduled elective cataract surgeries that were cancelled)",
-        "SSSL practice audit (Audit of Safe Surgery Save Lives practice compliance at ophthalmology units)",
-        "POMR Reporting (Compliance with Patient Outcome and Mortality Review reporting at ophthalmology units)",
-        "PCI practice audit compliance (Prevention and Control of Infection audit, minimum once per year per centre)"
+        "Cataract patients referred to KK and seen",
+        "Cataract patients referred to eye clinic and seen",
+        "Cataract surgery waiting time",
+        "Cancellation rate of elective cataract surgery",
+        "SSSL practice audit",
+        "POMR Reporting",
+        "PCI practice audit compliance"
     ]
     
     outcome_domains = [
-        "Cataract surgery performed under Daycare (Proportion of cataract surgeries completed as daycare without hospital admission)",
-        "Cataract complication rate (Rate of intraoperative and postoperative complications following cataract surgery)",
-        "Post-operative refractive surprise rate (Audit of cases within +/- 1 Diopter from targeted refraction, at least once per year)",
-        "Audit completion rate (Target of 1 audit per year per centre, with a benchmark of 50 cases per centre)",
-        "Rate of elective post-operative endophthalmitis (Sentinel event rate of infection following elective cataract surgery)",
-        "Anaesthesia-related mortality rate (Percentage of anaesthesia-related deaths among ophthalmology surgical patients)",
-        "Infectious endophthalmitis following cataract surgery (Target of no more than 2 cases per 1,000 cataract operations)",
-        "BCVA better than 6/12 within 3 months post-surgery (Proportion of patients with no co-morbidity achieving 6/12 or better vision)",
-        "Visual acuity outcome in patients without co-morbidity (Percentage achieving 6/12 or better within 3 months of cataract surgery)",
-        "IOL availability rate (Rate of patients requiring out-of-pocket payment for IOL due to unavailability of subsidised options)",
-        "IOL availability for all cataract surgery patients (All patients needing IOL to have access via out-of-pocket, subsidy or sponsorship)",
-        "Pathway to acquire IOL for Malaysian citizens (Defined and accessible pathway for ageing population to obtain IOL)"
+        "Cataract surgery performed under Daycare",
+        "Cataract complication rate",
+        "Post-operative refractive surprise rate",
+        "Audit completion rate",
+        "Rate of elective post-operative endophthalmitis",
+        "Anaesthesia-related mortality rate",
+        "Infectious endophthalmitis following cataract surgery",
+        "BCVA better than 6/12 within 3 months post-surgery",
+        "Visual acuity outcome in patients without co-morbidity",
+        "IOL availability rate",
+        "IOL availability for all cataract surgery patients",
+        "Pathway to acquire IOL for Malaysian citizens"
     ]
 
     details = SurgeryActivityDetail.objects.filter(activity=activity)
@@ -788,6 +787,7 @@ def form_ophthalmology(request, activity_id):
         key = f"{d.category}_{d.domain}"
         detail_dict[key] = {
             "performances": d.performances_value,
+            "denominator": d.denominator,
             "target": d.target,
             "weight": d.weight,
             "score": d.score,
@@ -802,16 +802,36 @@ def form_ophthalmology(request, activity_id):
             total = Decimal('0')
             for i, domain in enumerate(domains, start=1):
                 performances = request.POST.get(f"{category_name}_performances_{i}", "0")
+                denominator = request.POST.get(f"{category_name}_denominator_{i}", "0")
                 target = request.POST.get(f"{category_name}_target_{i}", "0")
                 weight = request.POST.get(f"{category_name}_weight_{i}", "0")
 
-                score_f, wscore_f, index_f = calculate_domain_scores(performances, target, weight)
+                try: num_d = Decimal(str(performances))
+                except: num_d = Decimal('0')
+                try: den_d = Decimal(str(denominator))
+                except: den_d = Decimal('0')
+                try: wgt_d = Decimal(str(weight))
+                except: wgt_d = Decimal('0')
+                
+                if den_d > 0:
+                    score_d = (num_d / den_d) * Decimal('100')
+                    wscore_d = (num_d / den_d) * wgt_d
+                    index_d = num_d / den_d
+                else:
+                    score_d = Decimal('0')
+                    wscore_d = Decimal('0')
+                    index_d = Decimal('0')
+                    
+                score_f = float(score_d.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))
+                wscore_f = float(wscore_d.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))
+                index_f = float(index_d.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))
 
                 SurgeryActivityDetail.objects.create(
                     activity=activity,
                     category=category_name,
                     domain=domain,
                     performances_value=int(performances) if performances else 0,
+                    denominator=int(denominator) if denominator else 0,
                     target=int(target) if target else 0,
                     weight=float(weight) if weight else 0,
                     score=score_f,
@@ -824,7 +844,7 @@ def form_ophthalmology(request, activity_id):
         activity.total_structure = save_category("structure", structure_domains)
         activity.total_process = save_category("process", process_domains)
         activity.total_outcome = save_category("outcome", outcome_domains)
-        activity.status = "done"
+        activity.status = "completed"
         activity.save()
 
         messages.success(request, "Data has been successfully saved.")
@@ -838,7 +858,6 @@ def form_ophthalmology(request, activity_id):
         "detail_dict": detail_dict,
     })
 
-
 @login_required
 def dashboard_ophthalmology(request):
     selected_year = int(request.GET.get('year', datetime.now().year))
@@ -846,7 +865,7 @@ def dashboard_ophthalmology(request):
 
     activities = SurgeryActivity.objects.filter(
         fraternity="Ophthalmology",
-        status="done",
+        status="completed",
         year=selected_year,
         period=selected_period
     )
@@ -856,34 +875,24 @@ def dashboard_ophthalmology(request):
             "selected_year": selected_year,
             "selected_period": selected_period,
             "years": list(range(2020, datetime.now().year + 2)),
-            "total_structure_raw": 0,
-            "total_process_raw": 0,
-            "total_outcome_raw": 0,
-            "total_structure": 0,
-            "total_process": 0,
-            "total_outcome": 0,
-            "overall_index": 0,
-            "domain_rows": []
+            "total_structure_raw": 0, "total_process_raw": 0, "total_outcome_raw": 0,
+            "total_structure": 0, "total_process": 0, "total_outcome": 0,
+            "overall_index": 0, "domain_rows": []
         }
         return render(request, "accounts/dashboard_ophthalmology.html", context)
 
     activity = activities.first()
     details = SurgeryActivityDetail.objects.filter(activity=activity)
 
-    total_structure_raw = sum(details.filter(category="structure").values_list("weighted_score", flat=True)) or 0.0
-    total_process_raw = sum(details.filter(category="process").values_list("weighted_score", flat=True)) or 0.0
-    total_outcome_raw = sum(details.filter(category="outcome").values_list("weighted_score", flat=True)) or 0.0
+    total_structure_raw = min(float(sum(details.filter(category="structure").values_list("weighted_score", flat=True)) or 0.0), 1.0)
+    total_process_raw = min(float(sum(details.filter(category="process").values_list("weighted_score", flat=True)) or 0.0), 1.0)
+    total_outcome_raw = min(float(sum(details.filter(category="outcome").values_list("weighted_score", flat=True)) or 0.0), 1.0)
 
-    total_structure_raw = min(float(total_structure_raw), 1.0)
-    total_process_raw = min(float(total_process_raw), 1.0)
-    total_outcome_raw = min(float(total_outcome_raw), 1.0)
-
+    # Pemberat Excel Ophthalmology: 0.5 (Structure), 0.3 (Process), 0.2 (Outcome)
     total_structure = total_structure_raw * 0.5
     total_process = total_process_raw * 0.3
     total_outcome = total_outcome_raw * 0.2
-
-    overall_index = total_structure + total_process + total_outcome
-    overall_index = min(overall_index, 1.0)
+    overall_index = min(total_structure + total_process + total_outcome, 1.0)
 
     domain_rows = []
     for d in details:
@@ -891,6 +900,7 @@ def dashboard_ophthalmology(request):
             "category": d.category.capitalize(),
             "domain": d.domain,
             "performances_value": d.performances_value,
+            "denominator": d.denominator,
             "target": d.target,
             "weight": d.weight,
             "score": d.score,
@@ -899,8 +909,7 @@ def dashboard_ophthalmology(request):
         })
 
     context = {
-        "selected_year": selected_year,
-        "selected_period": selected_period,
+        "selected_year": selected_year, "selected_period": selected_period,
         "years": list(range(2020, datetime.now().year + 2)),
         "total_structure_raw": round(total_structure_raw, 2),
         "total_process_raw": round(total_process_raw, 2),
