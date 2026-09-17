@@ -101,11 +101,12 @@ urlpatterns = [
     #path("add-gscolorectal-activity/", views.add_gscolorectal_activity, name="add_gscolorectal_activity"),
     #path("fraternity/gscolorectal/form/<int:activity_id>/", views.form_gscolorectal, name="form_gscolorectal"),
 
-    path("ophthalmology/", views.ophthalmology, name="ophthalmology"),
-    path("ophthalmology_activities/", views.ophthalmology_activities, name="ophthalmology_activities"),
-    path("add-ophthalmology-activity/", views.add_ophthalmology_activity, name="add_ophthalmology_activity"),
-    path("fraternity/ophthalmology/form/<int:activity_id>/", views.form_ophthalmology, name="form_ophthalmology"),
-    path('dashboard_opththalmology/', views.dashboard_ophthalmology, name='dashboard_opththalmology'),
+    # Pautan untuk Modul Ophthalmology
+    path('ophthalmology/', views.ophthalmology, name='ophthalmology'),
+    path('ophthalmology/activities/', views.ophthalmology_activities, name='ophthalmology_activities'),
+    path('ophthalmology/activities/add/', views.add_ophthalmology_activity, name='add_ophthalmology_activity'),
+    path('ophthalmology/form/<int:activity_id>/', views.form_ophthalmology, name='form_ophthalmology'),
+    path('ophthalmology/dashboard/', views.dashboard_ophthalmology, name='dashboard_ophthalmology'),
 
     
     path("otorhinolaryngology/", views.otorhinolaryngology, name="otorhinolaryngology"),
