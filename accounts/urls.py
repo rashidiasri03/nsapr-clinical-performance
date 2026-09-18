@@ -77,10 +77,12 @@ urlpatterns = [
     #path("add-gscolorectal-activity/", views.add_gscolorectal_activity, name="add_gscolorectal_activity"),
     #path("fraternity/gscolorectal/form/<int:activity_id>/", views.form_gscolorectal, name="form_gscolorectal"),
 
-    path("urology/", views.urology, name="urology"),
-    #path("gscolorectal_activities/", views.gscolorectal_activities, name="gscolorectal_activities"),
-    #path("add-gscolorectal-activity/", views.add_gscolorectal_activity, name="add_gscolorectal_activity"),
-    #path("fraternity/gscolorectal/form/<int:activity_id>/", views.form_gscolorectal, name="form_gscolorectal"),
+    # Pautan untuk Modul Urology
+    path('urology/', views.urology, name='urology'),
+    path('urology/activities/', views.urology_activities, name='urology_activities'),
+    path('urology/activities/add/', views.add_urology_activity, name='add_urology_activity'),
+    path('urology/form/<int:activity_id>/', views.form_urology, name='form_urology'),
+    path('urology/dashboard/', views.dashboard_urology, name='dashboard_urology'),
 
     # PAEDIATRIC SURGERY
     path("paediatric/", views.paediatric, name="paediatric"),
