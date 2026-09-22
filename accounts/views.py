@@ -3429,9 +3429,257 @@ def obstetrics_gynaecology(request):
 def otorhinolaryngology(request):
     return render(request, 'accounts/otorhinolaryngology.html')
 
+# =============================================
+# PLASTIC & RECONSTRUCTIVE SURGERY
+# =============================================
 @login_required
 def plastic_reconstructive(request):
     return render(request, 'accounts/plastic_reconstructive.html')
+
+@login_required
+def plastic_reconstructive_activities(request):
+    year = datetime.now().year
+    activities = SurgeryActivity.objects.filter(
+        fraternity="Plastic And Reconstructive Surgery",
+        year=year
+    ).annotate(
+        period_order=Case(
+            When(period='Jan-Jun', then=1),
+            When(period='Jul-Dec', then=2),
+            default=3,
+            output_field=IntegerField()
+        )
+    ).order_by('period_order')
+    
+    return render(request, 'accounts/plastic_reconstructive_activities.html', {
+        'activities': activities,
+        'year': year,
+    })
+
+@login_required
+def add_plastic_reconstructive_activity(request):
+    profile = getattr(request.user, 'profile', None)
+    if not request.user.is_superuser and (not profile or profile.bidang_pembedahan != 'PLASTIC AND RECONSTRUCTIVE SURGERY'):
+        messages.error(request, "You do not have permission to add this activity.")
+        return redirect('plastic_reconstructive_activities')
+
+    current_year = datetime.now().year
+    existing = SurgeryActivity.objects.filter(
+        fraternity="Plastic And Reconstructive Surgery",
+        year=current_year
+    ).count()
+
+    if existing == 0:
+        period = "Jan-Jun"
+    elif existing == 1:
+        period = "Jul-Dec"
+    else:
+        messages.error(request, "The activities for this year are already complete.")
+        return redirect('plastic_reconstructive_activities')
+
+    activity, created = SurgeryActivity.objects.get_or_create(
+        fraternity="Plastic And Reconstructive Surgery",
+        year=current_year,
+        period=period,
+        defaults={'status': 'not_started'}
+    )
+    activity.users.add(request.user)
+    messages.success(request, f"Activity {period} {current_year} created successfully!")
+    return redirect('plastic_reconstructive_activities')
+
+@login_required
+def form_plastic_reconstructive(request, activity_id):
+    profile = getattr(request.user, 'profile', None)
+    if not request.user.is_superuser and (not profile or profile.bidang_pembedahan != 'PLASTIC AND RECONSTRUCTIVE SURGERY'):
+        messages.error(request, "You do not have permission to access this form.")
+        return redirect('plastic_reconstructive_activities')
+
+    activity = get_object_or_404(SurgeryActivity, id=activity_id)
+
+    # Parameter dari Excel PRS (Burn)
+    structure_domains = [
+        "Establishment and implementation of a standardized burn prevention and first aid program at PKD aligned with National Burn Management Guideline 2024",
+        "Operationalisation of a burn prevention and first aid awareness programme at primary healthcare facilities.",
+        "Establishment and implementation of hospital-level burn governance and clinical management framework aligned with National Burn Management Guideline 2024",
+        "Availability of facilities supporting guideline-based burn first aid and minor burn care",
+        "Availability of appropriate hospital facilities to support safe, infection-controlled, and guideline-compliant burn management.",
+        "Availability of basic equipment for burn first aid and minor burn management at primary healthcare facilities.",
+        "Availability of functional and essential equipment for acute burn management in hospitals",
+        "Availability of trained personnel competent in guideline-based burn prevention and first aid education at PKD.",
+        "Availability of trained healthcare personnel for burn first aid and minor burn management at primary healthcare facilities",
+        "Availability of qualified and trained multidisciplinary workforce for burn management",
+        "Availability and utilisation of financial allocation or resource support to ensure continuous delivery of guideline-compliant burn prevention activities and clinical burn care at the primary healthcare level.",
+        "Availability of sufficient financial allocation and resource support for comprehensive burn management services in hospitals.",
+        "Availability and utilisation of a structured clinical documentation, data recording, and reporting system for burn patient management and prevention activities at primary healthcare facilities.",
+        "Availability and utilisation of a comprehensive burn information system, including clinical documentation, burn registry, and audit processes to support quality care and outcome monitoring."
+    ]
+    
+    process_domains = [
+        "Percentage of burn patients appropriately assessed and referred according to clinical guidelines at primary healthcare facilities.",
+        "Percentage of burn patients with complete initial assessment and early management documentation in compliance with The National Burn Management Guideline 2024",
+        "Percentage of burn patients requiring referral who receive appropriate basic stabilization and initial management prior to referral at primary healthcare level.",
+        "Percentage of burn patients receiving initial management within 30 minutes of presentation.",
+        "Percentage of burn patients undergoing surgical procedures with complete informed consent form prior to intervention",
+        "Percentage of burn patients undergoing procedures with complete compliance to MPSG requirements for correct patient, correct procedure, and correct site verification.",
+        "Percentage of burn patients undergoing procedures with documented ASA (American Society of Anesthesiologists) classification prior to anesthesia.",
+        "Percentage of burn patients with complete and timely submission of ePOMR for outcome monitoring.",
+        "Percentage of admitted burn patients managed with appropriate barrier nursing practices in accordance with KKM Infection Prevention and Control (IPC) guidelines"
+    ]
+    
+    outcome_domains = [
+        "Percentage of minor burn patients managed at Klinik Kesihatan who receive at least two documented follow-up visits after the initial encounter within the prescribed follow-up period.",
+        "Percentage of burn patients discharged from hospital achieve timely continuation of care through outpatient follow-up or appropriate step-down referral within 7 days of discharge.",
+        "Percentage of burn patients requiring emergency or urgent first surgical intervention who experience adverse clinical outcomes associated with delay beyond the recommended MOH POMR priority timeframe.",
+        "Zero mortality due to burn-related sepsis among patients with 2nd-degree burns (≤ 20% TBSA) without inhalation injury.",
+        "Percentage of skin grafting procedures achieving ≥ 90% graft take (successful adherence) at the first objective assessment.",
+        "Achieving a minimum 80% patient satisfaction rate regarding the referral process and major burn care management.",
+        "Equitable availability of essential burn wound care dressings via current Approved Product Purchase List (APPL) at primary healthcare facilities.",
+        "Equitable achievement of hospital-level burn care standards nationwide."
+    ]
+
+    details = SurgeryActivityDetail.objects.filter(activity=activity)
+    detail_dict = {}
+    for d in details:
+        key = f"{d.category}_{d.domain}"
+        detail_dict[key] = {
+            "performances": d.performances_value,
+            "denominator": d.denominator,
+            "target": d.target,
+            "weight": d.weight,
+            "score": d.score,
+            "wscore": d.weighted_score,
+            "index": d.index
+        }
+
+    if request.method == "POST":
+        SurgeryActivityDetail.objects.filter(activity=activity).delete()
+
+        def save_category(category_name, domains):
+            total = Decimal('0')
+            for i, domain in enumerate(domains, start=1):
+                performances = request.POST.get(f"{category_name}_performances_{i}", "0")
+                denominator = request.POST.get(f"{category_name}_denominator_{i}", "0")
+                target = request.POST.get(f"{category_name}_target_{i}", "0")
+                weight = request.POST.get(f"{category_name}_weight_{i}", "0")
+                
+                try: num_d = Decimal(str(performances))
+                except: num_d = Decimal('0')
+                try: den_d = Decimal(str(denominator))
+                except: den_d = Decimal('0')
+                try: wgt_d = Decimal(str(weight))
+                except: wgt_d = Decimal('0')
+                
+                if den_d > 0:
+                    score_d = (num_d / den_d) * Decimal('100')
+                    wscore_d = (num_d / den_d) * wgt_d
+                    index_d = num_d / den_d
+                else:
+                    score_d = Decimal('0')
+                    wscore_d = Decimal('0')
+                    index_d = Decimal('0')
+                    
+                score_f = float(score_d.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))
+                wscore_f = float(wscore_d.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))
+                index_f = float(index_d.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))
+
+                SurgeryActivityDetail.objects.create(
+                    activity=activity,
+                    category=category_name,
+                    domain=domain,
+                    performances_value=int(performances) if performances else 0,
+                    denominator=int(denominator) if denominator else 0,
+                    target=int(target) if target else 0,
+                    weight=float(weight) if weight else 0,
+                    score=score_f,
+                    weighted_score=wscore_f,
+                    index=index_f
+                )
+                total += Decimal(str(wscore_f))
+            return float(total.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))
+
+        activity.total_structure = save_category("structure", structure_domains)
+        activity.total_process = save_category("process", process_domains)
+        activity.total_outcome = save_category("outcome", outcome_domains)
+        activity.status = "completed"
+        activity.save()
+
+        messages.success(request, "Data has been successfully saved.")
+        return redirect('plastic_reconstructive_activities')
+
+    return render(request, "accounts/form_plastic_reconstructive.html", {
+        "activity": activity,
+        "structure_domains": structure_domains,
+        "process_domains": process_domains,
+        "outcome_domains": outcome_domains,
+        "detail_dict": detail_dict,
+    })
+
+@login_required
+def dashboard_plastic_reconstructive(request):
+    selected_year = int(request.GET.get('year', datetime.now().year))
+    selected_period = request.GET.get('period', 'Jan-Jun')
+
+    activities = SurgeryActivity.objects.filter(
+        fraternity="Plastic And Reconstructive Surgery",
+        status="completed",
+        year=selected_year,
+        period=selected_period
+    )
+
+    if not activities.exists():
+        context = {
+            "selected_year": selected_year,
+            "selected_period": selected_period,
+            "years": list(range(2020, datetime.now().year + 2)),
+            "total_structure_raw": 0,
+            "total_process_raw": 0,
+            "total_outcome_raw": 0,
+            "total_structure": 0,
+            "total_process": 0,
+            "total_outcome": 0,
+            "overall_index": 0,
+            "domain_rows": [],
+        }
+        return render(request, "accounts/dashboard_plastic_reconstructive.html", context)
+
+    activity = activities.first()
+    details = SurgeryActivityDetail.objects.filter(activity=activity)
+
+    total_structure_raw = min(float(sum(details.filter(category="structure").values_list("weighted_score", flat=True)) or 0.0), 1.0)
+    total_process_raw = min(float(sum(details.filter(category="process").values_list("weighted_score", flat=True)) or 0.0), 1.0)
+    total_outcome_raw = min(float(sum(details.filter(category="outcome").values_list("weighted_score", flat=True)) or 0.0), 1.0)
+
+    # Pemberat PRS (Burn): 90% Structure, 5% Process, 5% Outcome
+    total_structure = total_structure_raw * 0.90
+    total_process = total_process_raw * 0.05
+    total_outcome = total_outcome_raw * 0.05
+    overall_index = min(total_structure + total_process + total_outcome, 1.0)
+
+    domain_rows = [{
+        "category": d.category.capitalize(),
+        "domain": d.domain,
+        "performances_value": d.performances_value,
+        "target": d.target,
+        "weight": d.weight,
+        "score": d.score,
+        "weighted_score": d.weighted_score,
+        "index": d.index,
+    } for d in details]
+
+    context = {
+        "total_structure_raw": round(total_structure_raw, 2),
+        "total_process_raw": round(total_process_raw, 2),
+        "total_outcome_raw": round(total_outcome_raw, 2),
+        "total_structure": round(total_structure, 2),
+        "total_process": round(total_process, 2),
+        "total_outcome": round(total_outcome, 2),
+        "overall_index": round(overall_index, 2),
+        "domain_rows": domain_rows,
+        "years": list(range(2020, datetime.now().year + 2)),
+        "selected_year": selected_year,
+        "selected_period": selected_period,
+    }
+    return render(request, "accounts/dashboard_plastic_reconstructive.html", context)
 
 @login_required
 def oral_maxillofacial(request):

@@ -116,10 +116,12 @@ urlpatterns = [
     #path("add-gscolorectal-activity/", views.add_gscolorectal_activity, name="add_gscolorectal_activity"),
     #path("fraternity/gscolorectal/form/<int:activity_id>/", views.form_gscolorectal, name="form_gscolorectal"),
 
+    # Pautan untuk Modul Plastic & Reconstructive Surgery
     path("plastic_reconstructive/", views.plastic_reconstructive, name="plastic_reconstructive"),
-    #path("gscolorectal_activities/", views.gscolorectal_activities, name="gscolorectal_activities"),
-    #path("add-gscolorectal-activity/", views.add_gscolorectal_activity, name="add_gscolorectal_activity"),
-    #path("fraternity/gscolorectal/form/<int:activity_id>/", views.form_gscolorectal, name="form_gscolorectal"),
+    path("plastic_reconstructive/activities/", views.plastic_reconstructive_activities, name="plastic_reconstructive_activities"),
+    path("plastic_reconstructive/activities/add/", views.add_plastic_reconstructive_activity, name="add_plastic_reconstructive_activity"),
+    path("plastic_reconstructive/form/<int:activity_id>/", views.form_plastic_reconstructive, name="form_plastic_reconstructive"),
+    path("plastic_reconstructive/dashboard/", views.dashboard_plastic_reconstructive, name="dashboard_plastic_reconstructive"),
 
     path("emergency-trauma/", views.emergency_trauma, name="emergency_trauma"),
     path("emergency-trauma/activities/", views.emergency_trauma_activities, name="emergency_trauma_activities"),
