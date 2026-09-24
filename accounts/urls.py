@@ -49,10 +49,12 @@ urlpatterns = [
     path("gsthoracic/form/<int:activity_id>/", views.form_gsthoracic, name="form_gsthoracic"),
     path("gsthoracic/dashboard/", views.dashboard_gsthoracic, name="dashboard_gsthoracic"),
 
+    # Pautan untuk General Surgery Trauma
     path("gstrauma/", views.gstrauma, name="gstrauma"),
-    #path("gscolorectal_activities/", views.gscolorectal_activities, name="gscolorectal_activities"),
-    #path("add-gscolorectal-activity/", views.add_gscolorectal_activity, name="add_gscolorectal_activity"),
-    #path("fraternity/gscolorectal/form/<int:activity_id>/", views.form_gscolorectal, name="form_gscolorectal"),
+    path("gstrauma/activities/", views.gstrauma_activities, name="gstrauma_activities"),
+    path("gstrauma/add/", views.add_gstrauma_activity, name="add_gstrauma_activity"),
+    path("gstrauma/form/<int:activity_id>/", views.form_gstrauma, name="form_gstrauma"),
+    path("gstrauma/dashboard/", views.dashboard_gstrauma, name="dashboard_gstrauma"),
 
     path("upper-gi/", views.upper_gi, name="upper_gi"),
     path("upper-gi/activities/", views.upper_gi_activities, name="upper_gi_activities"),
