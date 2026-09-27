@@ -69,10 +69,12 @@ urlpatterns = [
     path("anaesthesia/form/<int:activity_id>/", views.form_anaesthesia, name="form_anaesthesia"),
     path("anaesthesia/dashboard/", views.dashboard_anaesthesia, name="dashboard_anaesthesia"),
 
+    # Pautan untuk Modul Orthopaedic
     path("orthopaedic/", views.orthopaedic, name="orthopaedic"),
-    #path("gscolorectal_activities/", views.gscolorectal_activities, name="gscolorectal_activities"),
-    #path("add-gscolorectal-activity/", views.add_gscolorectal_activity, name="add_gscolorectal_activity"),
-    #path("fraternity/gscolorectal/form/<int:activity_id>/", views.form_gscolorectal, name="form_gscolorectal"),
+    path("orthopaedic/activities/", views.orthopaedic_activities, name="orthopaedic_activities"),
+    path("orthopaedic/activities/add/", views.add_orthopaedic_activity, name="add_orthopaedic_activity"),
+    path("orthopaedic/form/<int:activity_id>/", views.form_orthopaedic, name="form_orthopaedic"),
+    path("orthopaedic/dashboard/", views.dashboard_orthopaedic, name="dashboard_orthopaedic"),
 
     path("neurosurgery/", views.neurosurgery, name="neurosurgery"),
     #path("gscolorectal_activities/", views.gscolorectal_activities, name="gscolorectal_activities"),

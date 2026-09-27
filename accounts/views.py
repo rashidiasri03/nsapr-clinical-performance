@@ -2933,9 +2933,245 @@ def dashboard_gstrauma(request):
         'selected_period': selected_period,
     })
 
+# =============================================
+# ORTHOPAEDIC
+# =============================================
 @login_required
 def orthopaedic(request):
     return render(request, 'accounts/orthopaedic.html')
+
+@login_required
+def orthopaedic_activities(request):
+    year = datetime.now().year
+    activities = SurgeryActivity.objects.filter(
+        fraternity="Orthopaedic",
+        year=year
+    ).annotate(
+        period_order=Case(
+            When(period='Jan-Jun', then=1),
+            When(period='Jul-Dec', then=2),
+            default=3,
+            output_field=IntegerField()
+        )
+    ).order_by('period_order')
+    
+    return render(request, 'accounts/orthopaedic_activities.html', {
+        'activities': activities,
+        'year': year,
+    })
+
+@login_required
+def add_orthopaedic_activity(request):
+    profile = getattr(request.user, 'profile', None)
+    if not request.user.is_superuser and (not profile or profile.bidang_pembedahan != 'ORTHOPAEDIC'):
+        messages.error(request, "You do not have permission to add this activity.")
+        return redirect('orthopaedic_activities')
+
+    current_year = datetime.now().year
+    existing = SurgeryActivity.objects.filter(
+        fraternity="Orthopaedic",
+        year=current_year
+    ).count()
+
+    if existing == 0:
+        period = "Jan-Jun"
+    elif existing == 1:
+        period = "Jul-Dec"
+    else:
+        messages.error(request, "The activities for this year are already complete.")
+        return redirect('orthopaedic_activities')
+
+    activity, created = SurgeryActivity.objects.get_or_create(
+        fraternity="Orthopaedic",
+        year=current_year,
+        period=period,
+        defaults={'status': 'not_started'}
+    )
+    activity.users.add(request.user)
+    messages.success(request, f"Activity {period} {current_year} created successfully!")
+    return redirect('orthopaedic_activities')
+
+@login_required
+def form_orthopaedic(request, activity_id):
+    profile = getattr(request.user, 'profile', None)
+    if not request.user.is_superuser and (not profile or profile.bidang_pembedahan != 'ORTHOPAEDIC'):
+        messages.error(request, "You do not have permission to access this form.")
+        return redirect('orthopaedic_activities')
+
+    activity = get_object_or_404(SurgeryActivity, id=activity_id)
+
+    # Parameter dari Excel Orthopaedic (OA) Final
+    structure_domains = [
+        "Percentage of case suspected osteoporosis had BMD done in a year",
+        "Percentage of health clinic with medical officer trained and credential in performing intra articular Hyaluronic injection",
+        "% training of Medical officer on intrarticular hyaluronic injection",
+        "Facilities (Unspecified)",
+        "Equipment (Unspecified)",
+        "Workforce (Unspecified)",
+        "Budget/ Financial allocation (Unspecified)",
+        "Digitalization (Unspecified)"
+    ]
+    
+    process_domains = [
+        "Preoperative – Screening & Referral (Unspecified)",
+        "Preoperative – Preoperative Care (Unspecified)",
+        "Preoperative – Communication & Consent (Unspecified)",
+        "Intraoperative - Surgical Safety (Unspecified)",
+        "Postoperative - POMR (Unspecified)",
+        "Perioperative – Infection Prevention and Control (IPC) (Unspecified)"
+    ]
+    
+    outcome_domains = [
+        "Access to Care (Unspecified)",
+        "Surgical Safety (Unspecified)",
+        "POMR (Unspecified)",
+        "Patient Satisfaction (Unspecified)",
+        "Equity (Unspecified)"
+    ]
+
+    details = SurgeryActivityDetail.objects.filter(activity=activity)
+    detail_dict = {}
+    for d in details:
+        key = f"{d.category}_{d.domain}"
+        detail_dict[key] = {
+            "performances": d.performances_value,
+            "denominator": d.denominator,
+            "target": d.target,
+            "weight": d.weight,
+            "score": d.score,
+            "wscore": d.weighted_score,
+            "index": d.index
+        }
+
+    if request.method == "POST":
+        SurgeryActivityDetail.objects.filter(activity=activity).delete()
+
+        def save_category(category_name, domains):
+            total = Decimal('0')
+            for i, domain in enumerate(domains, start=1):
+                performances = request.POST.get(f"{category_name}_performances_{i}", "0")
+                denominator = request.POST.get(f"{category_name}_denominator_{i}", "0")
+                target = request.POST.get(f"{category_name}_target_{i}", "0")
+                weight = request.POST.get(f"{category_name}_weight_{i}", "0")
+                
+                try: num_d = Decimal(str(performances))
+                except: num_d = Decimal('0')
+                try: den_d = Decimal(str(denominator))
+                except: den_d = Decimal('0')
+                try: wgt_d = Decimal(str(weight))
+                except: wgt_d = Decimal('0')
+                
+                if den_d > 0:
+                    score_d = (num_d / den_d) * Decimal('100')
+                    wscore_d = (num_d / den_d) * wgt_d
+                    index_d = num_d / den_d
+                else:
+                    score_d = Decimal('0')
+                    wscore_d = Decimal('0')
+                    index_d = Decimal('0')
+                    
+                score_f = float(score_d.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))
+                wscore_f = float(wscore_d.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))
+                index_f = float(index_d.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))
+
+                SurgeryActivityDetail.objects.create(
+                    activity=activity,
+                    category=category_name,
+                    domain=domain,
+                    performances_value=int(performances) if performances else 0,
+                    denominator=int(denominator) if denominator else 0,
+                    target=int(target) if target else 0,
+                    weight=float(weight) if weight else 0,
+                    score=score_f,
+                    weighted_score=wscore_f,
+                    index=index_f
+                )
+                total += Decimal(str(wscore_f))
+            return float(total.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))
+
+        activity.total_structure = save_category("structure", structure_domains)
+        activity.total_process = save_category("process", process_domains)
+        activity.total_outcome = save_category("outcome", outcome_domains)
+        activity.status = "completed"
+        activity.save()
+
+        messages.success(request, "Data has been successfully saved.")
+        return redirect('orthopaedic_activities')
+
+    return render(request, "accounts/form_orthopaedic.html", {
+        "activity": activity,
+        "structure_domains": structure_domains,
+        "process_domains": process_domains,
+        "outcome_domains": outcome_domains,
+        "detail_dict": detail_dict,
+    })
+
+@login_required
+def dashboard_orthopaedic(request):
+    selected_year = int(request.GET.get('year', datetime.now().year))
+    selected_period = request.GET.get('period', 'Jan-Jun')
+
+    activities = SurgeryActivity.objects.filter(
+        fraternity="Orthopaedic",
+        status="completed",
+        year=selected_year,
+        period=selected_period
+    )
+
+    if not activities.exists():
+        context = {
+            "selected_year": selected_year,
+            "selected_period": selected_period,
+            "years": list(range(2020, datetime.now().year + 2)),
+            "total_structure_raw": 0,
+            "total_process_raw": 0,
+            "total_outcome_raw": 0,
+            "total_structure": 0,
+            "total_process": 0,
+            "total_outcome": 0,
+            "overall_index": 0,
+            "domain_rows": [],
+        }
+        return render(request, "accounts/dashboard_orthopaedic.html", context)
+
+    activity = activities.first()
+    details = SurgeryActivityDetail.objects.filter(activity=activity)
+
+    total_structure_raw = min(float(sum(details.filter(category="structure").values_list("weighted_score", flat=True)) or 0.0), 1.0)
+    total_process_raw = min(float(sum(details.filter(category="process").values_list("weighted_score", flat=True)) or 0.0), 1.0)
+    total_outcome_raw = min(float(sum(details.filter(category="outcome").values_list("weighted_score", flat=True)) or 0.0), 1.0)
+
+    # Pemberat Orthopaedic: 30% Structure, 40% Process, 30% Outcome
+    total_structure = total_structure_raw * 0.3
+    total_process = total_process_raw * 0.4
+    total_outcome = total_outcome_raw * 0.3
+    overall_index = min(total_structure + total_process + total_outcome, 1.0)
+
+    domain_rows = [{
+        "category": d.category.capitalize(),
+        "domain": d.domain,
+        "performances_value": d.performances_value,
+        "target": d.target,
+        "weight": d.weight,
+        "score": d.score,
+        "weighted_score": d.weighted_score,
+        "index": d.index,
+    } for d in details]
+
+    context = {
+        "total_structure_raw": round(total_structure_raw, 2),
+        "total_process_raw": round(total_process_raw, 2),
+        "total_outcome_raw": round(total_outcome_raw, 2),
+        "total_structure": round(total_structure, 2),
+        "total_process": round(total_process, 2),
+        "total_outcome": round(total_outcome, 2),
+        "overall_index": round(overall_index, 2),
+        "domain_rows": domain_rows,
+        "years": list(range(2020, datetime.now().year + 2)),
+        "selected_year": selected_year,
+        "selected_period": selected_period,
+    }
+    return render(request, "accounts/dashboard_orthopaedic.html", context)
 
 @login_required
 def neurosurgery(request):
