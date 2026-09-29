@@ -214,13 +214,13 @@ def add_gs_activity(request):
 def form_gs(request, activity_id):
     profile = getattr(request.user, 'profile', None)
     
-    # ✅ STRICT CHECK (superadmin bypasses)
     if not request.user.is_superuser and (not profile or profile.bidang_pembedahan != 'GENERAL SURGERY'):
         messages.error(request, "You do not have permission to access this form.")
         return redirect('general_surgery_activities')
     
     activity = get_object_or_404(SurgeryActivity, id=activity_id)
 
+    # Parameter asal yang dikekalkan
     structure_domains = [
         "National surgical plan policy integration (Aligns surgical services with national health priorities and legislation)",
         "National surgical plan policy integration (Ensures standardized surgical practice across all health facility levels)",
@@ -297,6 +297,7 @@ def form_gs(request, activity_id):
         key = f"{d.category}_{d.domain}"
         detail_dict[key] = {
             "performances": d.performances_value,
+            "denominator": d.denominator,
             "target": d.target,
             "weight": d.weight,
             "score": d.score,
@@ -311,16 +312,37 @@ def form_gs(request, activity_id):
             total = Decimal('0')
             for i, domain in enumerate(domains, start=1):
                 performances = request.POST.get(f"{category_name}_performances_{i}", "0")
+                denominator = request.POST.get(f"{category_name}_denominator_{i}", "0")
                 target = request.POST.get(f"{category_name}_target_{i}", "0")
                 weight = request.POST.get(f"{category_name}_weight_{i}", "0")
 
-                score_f, wscore_f, index_f = calculate_domain_scores(performances, target, weight)
+                try: num_d = Decimal(str(performances))
+                except: num_d = Decimal('0')
+                try: den_d = Decimal(str(denominator))
+                except: den_d = Decimal('0')
+                try: wgt_d = Decimal(str(weight))
+                except: wgt_d = Decimal('0')
+                
+                # Pengiraan mengikut formula standard yang lain
+                if den_d > 0:
+                    score_d = (num_d / den_d) * Decimal('100')
+                    wscore_d = (num_d / den_d) * wgt_d
+                    index_d = num_d / den_d
+                else:
+                    score_d = Decimal('0')
+                    wscore_d = Decimal('0')
+                    index_d = Decimal('0')
+                    
+                score_f = float(score_d.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))
+                wscore_f = float(wscore_d.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))
+                index_f = float(index_d.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))
 
                 SurgeryActivityDetail.objects.create(
                     activity=activity,
                     category=category_name,
                     domain=domain,
                     performances_value=int(performances) if performances else 0,
+                    denominator=int(denominator) if denominator else 0,
                     target=int(target) if target else 0,
                     weight=float(weight) if weight else 0,
                     score=score_f,
@@ -382,20 +404,16 @@ def dashboard_gs(request):
     activity = activities.first()
     details = SurgeryActivityDetail.objects.filter(activity=activity)
 
-    total_structure_raw = sum(details.filter(category="structure").values_list("weighted_score", flat=True)) or 0.0
-    total_process_raw = sum(details.filter(category="process").values_list("weighted_score", flat=True)) or 0.0
-    total_outcome_raw = sum(details.filter(category="outcome").values_list("weighted_score", flat=True)) or 0.0
+    total_structure_raw = min(float(sum(details.filter(category="structure").values_list("weighted_score", flat=True)) or 0.0), 1.0)
+    total_process_raw = min(float(sum(details.filter(category="process").values_list("weighted_score", flat=True)) or 0.0), 1.0)
+    total_outcome_raw = min(float(sum(details.filter(category="outcome").values_list("weighted_score", flat=True)) or 0.0), 1.0)
 
-    total_structure_raw = min(float(total_structure_raw), 1.0)
-    total_process_raw = min(float(total_process_raw), 1.0)
-    total_outcome_raw = min(float(total_outcome_raw), 1.0)
-
+    # Pemberat General Surgery: 30% Structure, 40% Process, 30% Outcome
     total_structure = total_structure_raw * 0.3
     total_process = total_process_raw * 0.4
     total_outcome = total_outcome_raw * 0.3
 
-    overall_index = total_structure + total_process + total_outcome
-    overall_index = min(overall_index, 1.0)
+    overall_index = min(total_structure + total_process + total_outcome, 1.0)
 
     domain_rows = []
     for d in details:
@@ -403,6 +421,7 @@ def dashboard_gs(request):
             "category": d.category.capitalize(),
             "domain": d.domain,
             "performances_value": d.performances_value,
+            "denominator": d.denominator,
             "target": d.target,
             "weight": d.weight,
             "score": d.score,

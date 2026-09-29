@@ -142,7 +142,8 @@
           <tr>
             <th>Category</th>
             <th>Domain</th>
-            <th>Performances</th>
+            <th>Numerator</th>
+            <th>Denominator</th>
             <th>Target</th>
             <th>Weight</th>
             <th>Score (%)</th>
@@ -157,6 +158,7 @@
             <td>{{ row.category }}</td>
             <td>{{ row.domain }}</td>
             <td>{{ row.performances_value }}</td>
+            <td>{{ row.denominator|default_if_none:"0" }}</td>
             <td>{{ row.target }}</td>
             <td>{{ row.weight }}</td>
             <td>{{ row.score }}</td>
@@ -165,11 +167,10 @@
           </tr>
           {% empty %}
           <tr>
-            <td colspan="8" class="text-center py-3">No data for selected year/period.</td>
+            <td colspan="9" class="text-center py-3">No data for selected year/period.</td>
           </tr>
           {% endfor %}
         </tbody>
-
       </table>
     </div>
 </div>
