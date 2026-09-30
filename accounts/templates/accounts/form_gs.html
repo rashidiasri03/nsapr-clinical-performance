@@ -170,14 +170,19 @@
 function computeCategory(prefix, totalId) {
   let totalCents = 0;
   const rows = document.querySelectorAll(`input[name^="${prefix}_performances_"]`);
+  
   for (let i = 0; i < rows.length; i++) {
     const idx = i + 1;
     const numerator   = parseFloat(document.querySelector(`input[name="${prefix}_performances_${idx}"]`).value) || 0;
     const denominator = parseFloat(document.querySelector(`input[name="${prefix}_denominator_${idx}"]`).value) || 0;
+    const target      = parseFloat(document.querySelector(`input[name="${prefix}_target_${idx}"]`).value) || 0;
     const weight      = parseFloat(document.querySelector(`input[name="${prefix}_weight_${idx}"]`).value) || 0;
 
+    let divisor = denominator > 0 ? denominator : target;
     let score = 0;
-    if (denominator > 0) { score = (numerator / denominator) * 100; }
+    if (divisor > 0) { 
+      score = (numerator / divisor) * 100; 
+    }
     let weighted = (score / 100) * weight;
     let index    = score / 100;
 
@@ -200,9 +205,12 @@ function computeCategory(prefix, totalId) {
 
     totalCents += Math.round(weightedRounded * 100);
   }
-  const total = totalCents / 100;
-  document.getElementById(totalId).innerText = total.toFixed(2);
-  return total;
+  
+  const finalTotal = totalCents / 100;
+  if(document.getElementById(totalId)) {
+      document.getElementById(totalId).innerText = finalTotal.toFixed(2);
+  }
+  return finalTotal;
 }
 
 document.getElementById('calculateStructureBtn').addEventListener('click', function(){ computeCategory('structure', 'totalSAOIStructure'); });

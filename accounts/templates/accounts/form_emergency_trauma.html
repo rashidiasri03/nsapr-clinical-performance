@@ -49,6 +49,7 @@
     </table>
     <div class="mb-3">
       <button type="button" id="calculateStructureBtn" class="btn btn-primary">Calculate Structure SAOI</button>
+      <span class="ms-3">Total Structure SAOI: <strong id="totalSAOIStructure">{{ activity.total_structure|default_if_none:"0" }}</strong></span>
     </div>
     <hr>
 
@@ -80,6 +81,7 @@
     </table>
     <div class="mb-3">
       <button type="button" id="calculateProcessBtn" class="btn btn-primary">Calculate Process SAOI</button>
+      <span class="ms-3">Total Process SAOI: <strong id="totalSAOIProcess">{{ activity.total_process|default_if_none:"0" }}</strong></span>
     </div>
     <hr>
 
@@ -111,6 +113,7 @@
     </table>
     <div class="mb-3">
       <button type="button" id="calculateOutcomeBtn" class="btn btn-primary">Calculate Outcome SAOI</button>
+      <span class="ms-3">Total Outcome SAOI: <strong id="totalSAOIOutcome">{{ activity.total_outcome|default_if_none:"0" }}</strong></span>
     </div>
     <hr>
 
@@ -122,7 +125,8 @@
 </div>
 
 <script>
-function computeCategory(prefix) {
+function computeCategory(prefix, totalId) {
+  let totalCents = 0;
   const rows = document.querySelectorAll(`input[name^="${prefix}_performances_"]`);
   for (let i = 0; i < rows.length; i++) {
     const idx = i + 1;
@@ -154,17 +158,24 @@ function computeCategory(prefix) {
     if (hscore) hscore.value = scoreRounded;
     if (hwscore) hwscore.value = weightedRounded;
     if (hindex) hindex.value = indexRounded;
+
+    totalCents += Math.round(weightedRounded * 100);
   }
+  const total = totalCents / 100;
+  if(document.getElementById(totalId)){
+      document.getElementById(totalId).innerText = total.toFixed(2);
+  }
+  return total;
 }
 
-document.getElementById('calculateStructureBtn').addEventListener('click', function(){ computeCategory('structure'); });
-document.getElementById('calculateProcessBtn').addEventListener('click',   function(){ computeCategory('process'); });
-document.getElementById('calculateOutcomeBtn').addEventListener('click',   function(){ computeCategory('outcome'); });
+document.getElementById('calculateStructureBtn').addEventListener('click', function(){ computeCategory('structure', 'totalSAOIStructure'); });
+document.getElementById('calculateProcessBtn').addEventListener('click',   function(){ computeCategory('process', 'totalSAOIProcess'); });
+document.getElementById('calculateOutcomeBtn').addEventListener('click',   function(){ computeCategory('outcome', 'totalSAOIOutcome'); });
 
 document.getElementById('etdForm').addEventListener('submit', function(){
-  computeCategory('structure');
-  computeCategory('process');
-  computeCategory('outcome');
+  computeCategory('structure', 'totalSAOIStructure');
+  computeCategory('process', 'totalSAOIProcess');
+  computeCategory('outcome', 'totalSAOIOutcome');
 });
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
