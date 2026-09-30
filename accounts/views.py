@@ -1000,98 +1000,34 @@ def form_emergency_trauma(request, activity_id):
     
     activity = get_object_or_404(EmergencyTraumaActivity, id=activity_id)
     
+    # Parameter Diekstrak dari Excel NSAPR ETD Trauma Final
     structure_domains = [
-        "Number of FTE consultant emergency physicians (Ensures adequate expertise in managing acute emergencies)",
-        "Number of resuscitation bays (Enables safe stabilization of critical patients)",
-        "Availability of defibrillators, ventilators, airway equipment (Essential to life-saving interventions)",
-        "Real-time visibility of patient location and status in EDIS (Prevents loss or delay of care through tracking)",
-        "Existence of triage protocols (Ensures systematic and safe patient prioritization)",
-        "Number of FTE physicians with sub-specialty training within emergency medicine (Improves safety in handling complex, high-risk cases)",
-        "Availability of isolation rooms (Prevents spread of infectious diseases)",
-        "Adequate supply of emergency medications (Prevents delay in time-critical drug administration)",
-        "Accurate and updated clinical records (Improves safety through reliable documentation)",
-        "Policies on escalation of care (Defines clear action steps for clinical deterioration)",
-        "Number of FTE registered nurses specifically trained in emergency care (Supports high-standard emergency nursing care)",
-        "Dedicated areas for paediatric emergencies (Provides safe, age-appropriate emergency care)",
-        "Mechanisms for mortality reviews and critical incident reporting (Supports learning and prevention of future errors)",
-        "Availability of triage nurses (Ensures safe and timely categorization of patient acuity)",
-        "Availability of paramedics or EMTs (Enhances pre-hospital safety and seamless patient transfer)",
-        "Number of FTE physicians with sub-specialty training (paediatric EM, toxicology, critical care) (Supports evidence-based care across subdomains of emergency medicine)",
-        "Number of acute care beds/cubicles (Improves capacity to manage high patient load effectively)",
-        "Availability of ultrasound machines (Improves diagnostic precision in trauma and critical care)",
-        "Electronic documentation and order entry within the ED (Reduces errors and streamlines clinical processes)",
-        "Clinical guidelines for common presentations (Standardizes management and improves outcomes)",
-        "Skilled nursing and paramedic support improves care outcomes (Multidisciplinary expertise enhances quality and precision of care)",
-        "Designated fast-track or minor injuries areas (Streamlines care delivery for less severe cases)",
-        "Access to point-of-care testing devices (POCT) (Enables immediate lab results for quicker decision-making)",
-        "Seamless access to full patient history (Enhances clinical judgment with comprehensive data)",
-        "Adherence to emergency care standards (Maintains quality and consistency of care)",
-        "Dedicated areas for paediatric emergencies (Reduces stress and enhances comfort for children and families)",
-        "Protocols structured around needs of emergency patients (Ensures care is responsive, appropriate, and respectful)",
-        "Minor injury and fast-track zones enhance patient comfort and reduce wait (Improves experience for low-acuity patients)",
-        "Designated fast-track/minor injury areas streamline low-acuity care (Speeds up treatment and prevents ED crowding)",
-        "Immediate access to radiology services (e.g., on-site X-ray) (Speeds up diagnosis and treatment initiation)",
-        "Real-time EDIS improves decision-making and communication (Speeds up coordination among staff and departments)",
-        "Efficient patient flow pathways (Minimizes wait times and delays in care transitions)",
-        "Point-of-care testing improves rapid diagnosis (Reduces lab wait time in urgent situations)",
-        "Ratio of consultant emergency physicians to patient volume (Ensures workload is balanced, reducing delays and burnout)",
-        "Proximity to radiology and laboratory (Reduces turnaround time for diagnostics)",
-        "Well-stocked and functional resuscitation and diagnostic equipment supports throughput (Prevents workflow disruption and supports high-volume care)",
-        "Integration with hospital EHR enables electronic referrals and investigations (Reduces duplication and speeds up clinical workflows)",
-        "Optimized space layout for patient movement (Improves workflow efficiency and care delivery)",
-        "Sufficiently trained multidisciplinary workforce to meet varied patient needs (adults, children, trauma, etc.) (Promotes accessible and appropriate care across all demographics and conditions)",
-        "Facilities designed for all patient groups, including paediatrics and infectious cases (Ensures no group is underserved or overlooked)",
-        "Policies ensure fair and appropriate care access regardless of urgency or complexity (Supports non-discriminatory and inclusive service delivery)",
-        "Full integration of EDIS with hospital-wide systems (Supports coordinated care beyond the ED)",
-        "Governance aligned with hospital-wide safety and quality oversight (Promotes seamless operations across departments and services)"
+        "National Trauma Policy / National Pre-Hospital Care Policy",
+        "Trauma Resuscitation Bay / DCR Suite / Whole Body CT Scan / Dedicated Trauma Operation Theatre",
+        "Essential / Advanced trauma resuscitation, diagnostic, surgical and anaesthetic equipment",
+        "Emergency Physicians / Trained hospital health workers / Surgeons, Anaesthesiologists, Intensivists",
+        "Specific emergency trauma care allocation",
+        "Referral tracking and logs / Digital patient records / EHRs / Trauma registries"
     ]
     
     process_domains = [
-        "Percentage of time-critical activations ≤ target (Share of stroke, STEMI, and trauma activations meeting published door-to-CT, door-to-balloon, or door-to-OR benchmarks.)",
-        "Airway evaluation completeness (Proportion of high-risk patients with documented airway assessment before procedural sedation or intubation.)",
-        "Procedural-time-out compliance (Proportion of invasive ED procedures—like central line or chest tube insertions—with a documented pre-procedure time-out.)",
-        "Sedation-monitoring adherence (Proportion of ED sedation cases with continuous capnography, pulse oximetry, and blood pressure monitoring per protocol.)",
-        "Hand-hygiene compliance (Proportion of observed hand-hygiene opportunities completed before and after patient contact.)",
-        "ED POMR review rate (Proportion of deaths in the ED or within 24 hours of ED departure reviewed in a multidisciplinary mortality meeting.)",
-        "High-risk consent completeness (Proportion of patients undergoing high-risk ED procedures—e.g., thrombolysis, intubation—with documented informed consent.)",
-        "Isolation-precautions adherence (Proportion of patients with suspected airborne/contact infections placed on proper isolation within 30 minutes of triage.)",
-        "Resuscitation bundle activation rate (Proportion of septic or hemorrhagic shock patients managed per bundle—fluids, antibiotics, blood—within 1 hour.)",
-        "Family-update compliance (Proportion of critical-care boarders with documented family communication at least once per shift.)",
-        "Door-to-triage time ≤ 10 min (Proportion of all arrivals assigned a triage level within ten minutes of ED registration.)",
-        "Family-update compliance per shift (Focuses on ensuring family updates happen regularly, ideally every shift.)"
+        "Pre-Hospital Care - Scramble Time (Dispatched to En Route) - Less than 5 minutes",
+        "Pre-Hospital Care - Response Time (Dispatched to At Scene) - Less than 15 minutes",
+        "Pre-Hospital Care - Scene Time (Arrival to Transporting) - Less than 15 minutes",
+        "Resuscitation - Trauma Pre-Alert Notification - Improve in-hospital preparation",
+        "Resuscitation - Triage / Trauma Reception - Malaysian Triage Protocol, Bypass Policy",
+        "Resuscitation - Resuscitation - Trauma Team Activation (TTA), Emergency O Blood, Massive Transfusion Protocol",
+        "Post Resuscitation Care - Emergency Imaging - Portable X-ray Machine, Whole Body CT Scan",
+        "Post Resuscitation Care - Stabilisation, Continuation of Care & Monitoring - Primary team interval assessment",
+        "Emergency Interventions - Operation Theatre / Interventional Radiology - Disposition according to stability"
     ]
     
     outcome_domains = [
-        "Procedure-related complication rate: Proportion of ED procedures (e.g. central line, chest tube) resulting in a major adverse event (e.g. pneumothorax, bleeding).",
-        "ED-related POMR: Proportion of deaths occurring in the ED or within same-admission post-ED procedures among all ED arrivals.",
-        "Compliance rate with infection prevention protocols in emergency surgery: (Adherence to aseptic and infection-prevention standards in emergency surgery.)",
-        "Average time from ED admission to transfer or discharge (Mean duration from emergency department arrival to hospital admission, transfer, or discharge.)",
-        "Percentage of emergency surgeries initiated with complete surgical safety checklists: (Proportion of emergency surgeries that followed full safety checklist protocols.)",
-        "POMR for emergency surgical cases (Mortality rate among patients undergoing emergency surgery, regardless of procedure type.)",
-        "Percentage of patients reporting effective communication during emergency care: (Proportion of patients who felt their concerns were clearly understood by providers.)",
-        "Gender and age equity in emergency outcomes (Comparison of ED outcomes across gender and age groups to ensure fairness.)",
-        "Number of patients leaving without being seen (Count of patients who registered but left the ED before being assessed by a clinician.)",
-        "ED patient-experience score: Average satisfaction rating (0–100) from post-visit surveys covering wait times, communication and environment.",
-        "Availability of interpretation services (Presence of multilingual and interpreter services to support diverse patients in the ED.)",
-        "Patient satisfaction score for emergency department experience: Overall satisfaction score based on ED experience.)",
-        "Average time from arrival to first clinical assessment (Mean time from patient arrival at ED to first evaluation by medical personnel.)",
-        "Percentage of emergency surgeries delayed due to safety or resource constraints: (Proportion of emergency surgeries postponed because of equipment, staffing, or patient safety concerns.)",
-        "Waiting time as perceived and reported by patients; (Waiting time as understood and reported by patients themselves.)",
-        "Geographic access equity (arrival-to-treatment gaps urban vs rural): Difference in median arrival-to-treatment intervals between patients from urban vs rural catchment areas.",
-        "Door-to-doctor time ≤ 15 min: Proportion of patients first assessed by an emergency physician within 15 minutes of triage.",
-        "Emergency department bed occupancy rate: (Percentage of available emergency beds occupied at any given time.)",
-        "Rate of unplanned returns to surgery from emergency department interventions: (Frequency of repeat emergency surgeries required due to prior intervention failure.)",
-        "Mortality by urgency and case complexity (Death rate analyzed by how urgent the surgery was and the complexity of the condition.)",
-        "Complaint rate related to emergency care (Number of patient complaints regarding emergency medical treatment or service.)",
-        "Disparities in outcomes by ethnicity/vulnerability (Difference in care quality or outcomes for ethnic or socioeconomically vulnerable populations.)",
-        "ED-to-ICU transfer time ≤ 60 min: Proportion of ED patients requiring ICU care physically transferred from ED to ICU within one hour of decision.",
-        "Time to care regardless of socioeconomic or demographic status (Assessment of whether treatment access times are consistent across all population groups.)",
-        "Patient confidence in staff and services (Proportion of patients expressing trust in emergency care regardless of background.)",
-        "Triage-level equity (Consistency in triage scoring regardless of social status.)",
-        "Percentage of cases served from underserved/rural areas (Proportion of total ED visits from marginalized or rural populations.)",
-        "Percentage triaged within target timeframes by severity (Proportion of patients seen within benchmarked triage times based on acuity level.)",
-        "Rate of adverse events during emergency surgical procedures: (Incidence of complications like bleeding, organ injury, or anesthesia issues during emergency surgery.)",
-        "Number of deaths within thirty days following emergency surgical intervention: (Number of deaths occurring within 30 days after an emergency surgical intervention.)"
+        "Access to Care - Stabilization of unstable patients and transfer to appropriate center / Optimal care",
+        "Decision to Disposition - Within 1 hour",
+        "Time to Disposition - Within 2 hours",
+        "Mortality Review - Mortality review for all trauma cases, Improved mortality rate",
+        "Equity - Reaches rural and underserved, Equitable care regardless of socioeconomic status"
     ]
     
     detail_dict = {}
@@ -1100,6 +1036,7 @@ def form_emergency_trauma(request, activity_id):
         key = f"{d.category}_{d.domain_name}"
         detail_dict[key] = {
             'performances': d.performances_value,
+            'denominator': getattr(d, 'denominator', 0), # in case denominator is not yet in this model
             'target': d.target,
             'weight': d.weight,
             'score': d.score,
@@ -1112,22 +1049,42 @@ def form_emergency_trauma(request, activity_id):
         
         def save_domain(category, domain_name, i):
             performances = request.POST.get(f'{category}_performances_{i}', '0')
+            # Fallback for models without denominator field yet
+            denominator = request.POST.get(f'{category}_denominator_{i}', '0')
             target = request.POST.get(f'{category}_target_{i}', '0')
             weight = request.POST.get(f'{category}_weight_{i}', '0')
             
-            score_f, wscore_f, index_f = calculate_domain_scores(performances, target, weight)
+            # Using Denominator for calculation if present, else fallback to Target
+            calc_divisor = denominator if float(denominator or 0) > 0 else target
+            score_f, wscore_f, index_f = calculate_domain_scores(performances, calc_divisor, weight)
             
-            EmergencyTraumaDetail.objects.create(
-                activity=activity,
-                category=category,
-                domain_name=domain_name,
-                performances_value=int(performances) if performances else 0,
-                target=int(target) if target else 0,
-                weight=float(weight) if weight else 0,
-                score=score_f,
-                weighted_score=wscore_f,
-                index=index_f
-            )
+            # Use try-except in case EmergencyTraumaDetail model doesn't have 'denominator' column yet.
+            # To ensure it doesn't crash, we'll try to insert denominator, otherwise skip it.
+            try:
+                EmergencyTraumaDetail.objects.create(
+                    activity=activity,
+                    category=category,
+                    domain_name=domain_name,
+                    performances_value=int(performances) if performances else 0,
+                    denominator=int(denominator) if denominator else 0,
+                    target=int(target) if target else 0,
+                    weight=float(weight) if weight else 0,
+                    score=score_f,
+                    weighted_score=wscore_f,
+                    index=index_f
+                )
+            except TypeError:
+                 EmergencyTraumaDetail.objects.create(
+                    activity=activity,
+                    category=category,
+                    domain_name=domain_name,
+                    performances_value=int(performances) if performances else 0,
+                    target=int(target) if target else 0,
+                    weight=float(weight) if weight else 0,
+                    score=score_f,
+                    weighted_score=wscore_f,
+                    index=index_f
+                )
             
             return Decimal(str(wscore_f))
         
@@ -1200,12 +1157,12 @@ def dashboard_emergency_trauma(request):
     total_process_raw = min(float(total_process_raw), 1.0)
     total_outcome_raw = min(float(total_outcome_raw), 1.0)
 
-    total_structure = total_structure_raw * 0.5
-    total_process = total_process_raw * 0.3
-    total_outcome = total_outcome_raw * 0.2
+    # Pemberat ETD Trauma: 30% Structure, 60% Process, 10% Outcome
+    total_structure = total_structure_raw * 0.3
+    total_process = total_process_raw * 0.6
+    total_outcome = total_outcome_raw * 0.1
 
-    overall_saoi = total_structure + total_process + total_outcome
-    overall_saoi = min(overall_saoi, 1.0)
+    overall_saoi = min(total_structure + total_process + total_outcome, 1.0)
 
     domain_rows = []
     for d in details:
@@ -1213,6 +1170,7 @@ def dashboard_emergency_trauma(request):
             'category': d.category.capitalize(),
             'domain': d.domain_name,
             'performances_value': d.performances_value,
+            'denominator': getattr(d, 'denominator', 0),
             'target': d.target,
             'weight': d.weight,
             'score': d.score,
