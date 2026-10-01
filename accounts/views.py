@@ -1481,25 +1481,48 @@ def form_upper_gi(request, activity_id):
     
     activity = get_object_or_404(UpperGIActivity, id=activity_id)
     
+    # Parameter Terbaharu dari Excel "NSAPR UGI Gastric Ca Final"
     structure_domains = [
-        "Availability of specialist and MO (Ensures adequate medical expertise for upper GI surgical procedures)",
-        "Availability of paramedics (Supports emergency and perioperative care in upper GI surgery)",
-        "Availability of support services (Ensures ancillary services such as imaging and laboratory are accessible for clinical decision-making)",
-        "Functioning OT 24 Hours (Ensures continuous operating theatre availability for emergencies and elective cases)",
-        "Complete set of surgical instrument (Prevents delays or complications due to missing tools during procedures)"
+        "National Strategic Plan for Gastric Cancer",
+        "Awareness of Mark’s quadrant for gastric cancer screening",
+        "Development Guidelines for Gastric Cancer",
+        "Regular regional meetings with primary care HCPs under societies",
+        "1. Fully equipped endoscopic suites in each UGi center / 2. Upgrading OR for advanced MIS & HIPEC / 3. Fully equipped laparoscopic OT / 4. Preoperative risk stratification assessment tool",
+        "Adequate consumables in each upper gastrointestinal surgical center",
+        "Data manager to maintain database gastric cancer in UGI centers",
+        "Number of board-certified UGI surgeons",
+        "Allocations specific to UGI unit in each center as fixed portion in a dedicated warrant.",
+        "Digitalization (SP.6 / SH.6)"
     ]
     
     process_domains = [
-        "Percentage of pre-operative assessment documented (Tracks completeness of patient evaluation prior to upper GI surgery)",
-        "Percentage of informed consent taken (Ensures patients are adequately informed and agreement is recorded before surgery)",
-        "Percentage of surgical safety checklist (Measures adherence to the WHO Surgical Safety Checklist in upper GI procedures)",
-        "Percentage of operation notes documented (Tracks timely and accurate documentation of surgical findings and procedures)",
-        "Percentage of post-operative review (Ensures all patients are reviewed and monitored after upper GI surgery)"
+        "Percentage of patients referred to Upper GI center within 2 weeks once MARK’s quadrant criteria are fulfilled.",
+        "Percentage of patients undergoing diagnostic upper GI endoscopy within 14-calendar days from time of referral.",
+        "Development of Nutrition Module",
+        "Development of feeding tube care protocol",
+        "Establishment of nutrition support team in UGI centers",
+        "Regular multidisciplinary team meetings (MDT)",
+        "Adherence to Surgical Safety Checklist (SSSL)",
+        "Structured peri-operative gastrectomy anaesthesia and surgical protocol",
+        "Referral rate for indicated cases (Mark's quadrant score >9)",
+        "Provision of mortality rate in each UGI centers",
+        "Provision of hygiene education",
+        "Postoperative and wound care clinic service availability",
+        "Compliance of Surgical Site Infection (SSI) audit"
     ]
     
     outcome_domains = [
-        "Percentage of post-operative complications (Rate of adverse clinical events following upper GI surgical procedures)",
-        "Percentage of mortality rate (Rate of deaths occurring within 30 days of upper GI surgery)"
+        "National Gastric Cancer Awareness Month - October",
+        "Fast-track access to endoscopic facilities by specialists.",
+        "Time for definitive treatment after diagnosis confirmed within ONE calendar month at diagnosis in UGI center.",
+        "Dedicated two-monthly mortality and morbidity discussions via virtual meetings with UGI trainees nationwide.",
+        "Annual Peri-operative mortality review (POMR) Report",
+        "Wound Care Clinics",
+        "Annual national surgical site infection (SSI) Audit",
+        "Patient Satisfaction Survey",
+        "Two-yearly Patient Reported Outcome Measures (PROM) and Patient Reported Experience Measures (PREM) reports",
+        "Outreach program in Peninsular and Borneo counterparts.",
+        "Enable walk-in referrals to UGI centers."
     ]
     
     detail_dict = {}
@@ -1508,6 +1531,7 @@ def form_upper_gi(request, activity_id):
         key = f"{d.category}_{d.domain_name}"
         detail_dict[key] = {
             'performances': d.performances_value,
+            'denominator': getattr(d, 'denominator', 0), 
             'target': d.target,
             'weight': d.weight,
             'score': d.score,
@@ -1520,22 +1544,48 @@ def form_upper_gi(request, activity_id):
         
         def save_domain(category, domain_name, i):
             performances = request.POST.get(f'{category}_performances_{i}', '0')
+            denominator = request.POST.get(f'{category}_denominator_{i}', '0')
             target = request.POST.get(f'{category}_target_{i}', '0')
             weight = request.POST.get(f'{category}_weight_{i}', '0')
             
-            score_f, wscore_f, index_f = calculate_domain_scores(performances, target, weight)
+            try: num_val = float(performances) if performances else 0.0
+            except ValueError: num_val = 0.0
+            
+            try: den_val = float(denominator) if denominator else 0.0
+            except ValueError: den_val = 0.0
+            
+            try: tgt_val = float(target) if target else 0.0
+            except ValueError: tgt_val = 0.0
+            
+            # Using Denominator for calculation if present, else fallback to Target
+            calc_divisor = den_val if den_val > 0 else tgt_val
+            score_f, wscore_f, index_f = calculate_domain_scores(num_val, calc_divisor, weight)
 
-            UpperGIDetail.objects.create(
-                activity=activity,
-                category=category,
-                domain_name=domain_name,
-                performances_value=int(performances) if performances else 0,
-                target=int(target) if target else 0,
-                weight=float(weight) if weight else 0,
-                score=score_f,
-                weighted_score=wscore_f,
-                index=index_f
-            )
+            try:
+                UpperGIDetail.objects.create(
+                    activity=activity,
+                    category=category,
+                    domain_name=domain_name,
+                    performances_value=num_val,
+                    denominator=den_val,
+                    target=tgt_val,
+                    weight=float(weight) if weight else 0.0,
+                    score=score_f,
+                    weighted_score=wscore_f,
+                    index=index_f
+                )
+            except TypeError:
+                UpperGIDetail.objects.create(
+                    activity=activity,
+                    category=category,
+                    domain_name=domain_name,
+                    performances_value=num_val,
+                    target=tgt_val,
+                    weight=float(weight) if weight else 0.0,
+                    score=score_f,
+                    weighted_score=wscore_f,
+                    index=index_f
+                )
             
             return Decimal(str(wscore_f))
         
@@ -1551,9 +1601,9 @@ def form_upper_gi(request, activity_id):
         for i, domain in enumerate(outcome_domains, start=1):
             total_outcome += save_domain('outcome', domain, i)
         
-        activity.total_structure = total_structure.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
-        activity.total_process = total_process.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
-        activity.total_outcome = total_outcome.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+        activity.total_structure = float(total_structure.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))
+        activity.total_process = float(total_process.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))
+        activity.total_outcome = float(total_outcome.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))
         activity.status = 'completed'
         activity.save()
         
@@ -1575,19 +1625,28 @@ def dashboard_upper_gi(request):
     selected_period = request.GET.get('period', 'Jan-Jun')
     
     try:
-        activity = UpperGIActivity.objects.get(year=selected_year, period=selected_period)
-        total_structure = activity.total_structure
-        total_process = activity.total_process
-        total_outcome = activity.total_outcome
-        overall_index = activity.overall_index
+        activity = UpperGIActivity.objects.get(year=selected_year, period=selected_period, status="completed")
         
         details = UpperGIDetail.objects.filter(activity=activity)
+        
+        # Recalculate raw values to ensure accuracy
+        total_structure_raw = min(float(sum(details.filter(category="structure").values_list("weighted_score", flat=True)) or 0.0), 1.0)
+        total_process_raw = min(float(sum(details.filter(category="process").values_list("weighted_score", flat=True)) or 0.0), 1.0)
+        total_outcome_raw = min(float(sum(details.filter(category="outcome").values_list("weighted_score", flat=True)) or 0.0), 1.0)
+
+        # Apply Upper GI Weights: 30% Structure, 40% Process, 30% Outcome
+        total_structure = total_structure_raw * 0.3
+        total_process = total_process_raw * 0.4
+        total_outcome = total_outcome_raw * 0.3
+        overall_index = min(total_structure + total_process + total_outcome, 1.0)
+        
         domain_rows = []
         for d in details:
             domain_rows.append({
                 'category': d.category.capitalize(),
                 'domain': d.domain_name,
                 'performances_value': d.performances_value,
+                'denominator': getattr(d, 'denominator', 0),
                 'target': d.target,
                 'weight': d.weight,
                 'score': d.score,
@@ -1595,6 +1654,9 @@ def dashboard_upper_gi(request):
                 'index': d.index
             })
     except UpperGIActivity.DoesNotExist:
+        total_structure_raw = 0
+        total_process_raw = 0
+        total_outcome_raw = 0
         total_structure = 0
         total_process = 0
         total_outcome = 0
@@ -1603,9 +1665,12 @@ def dashboard_upper_gi(request):
     
     years = UpperGIActivity.objects.values_list('year', flat=True).distinct().order_by('-year')
     if not years:
-        years = [datetime.now().year]
+        years = [datetime.now().year, datetime.now().year + 1]
     
     return render(request, 'accounts/dashboard_upper_gi.html', {
+        'total_structure_raw': total_structure_raw,
+        'total_process_raw': total_process_raw,
+        'total_outcome_raw': total_outcome_raw,
         'total_structure': total_structure,
         'total_process': total_process,
         'total_outcome': total_outcome,
@@ -1614,8 +1679,6 @@ def dashboard_upper_gi(request):
         'years': years,
         'selected_year': selected_year,
         'selected_period': selected_period,
-        'bar_labels': '[]',
-        'bar_values': '[]'
     })
 
 
