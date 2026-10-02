@@ -4065,34 +4065,26 @@ def form_otorhinolaryngology(request, activity_id):
                 target = request.POST.get(f"{category_name}_target_{i}", "0")
                 weight = request.POST.get(f"{category_name}_weight_{i}", "0")
                 
-                try: num_d = Decimal(str(performances))
-                except: num_d = Decimal('0')
-                try: den_d = Decimal(str(denominator))
-                except: den_d = Decimal('0')
-                try: wgt_d = Decimal(str(weight))
-                except: wgt_d = Decimal('0')
+                try: num_val = float(performances) if performances else 0.0
+                except ValueError: num_val = 0.0
                 
-                if den_d > 0:
-                    score_d = (num_d / den_d) * Decimal('100')
-                    wscore_d = (num_d / den_d) * wgt_d
-                    index_d = num_d / den_d
-                else:
-                    score_d = Decimal('0')
-                    wscore_d = Decimal('0')
-                    index_d = Decimal('0')
-                    
-                score_f = float(score_d.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))
-                wscore_f = float(wscore_d.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))
-                index_f = float(index_d.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))
+                try: den_val = float(denominator) if denominator else 0.0
+                except ValueError: den_val = 0.0
+                
+                try: tgt_val = float(target) if target else 0.0
+                except ValueError: tgt_val = 0.0
+
+                calc_divisor = den_val if den_val > 0 else tgt_val
+                score_f, wscore_f, index_f = calculate_domain_scores(num_val, calc_divisor, weight)
 
                 SurgeryActivityDetail.objects.create(
                     activity=activity,
                     category=category_name,
                     domain=domain,
-                    performances_value=int(performances) if performances else 0,
-                    denominator=int(denominator) if denominator else 0,
-                    target=int(target) if target else 0,
-                    weight=float(weight) if weight else 0,
+                    performances_value=num_val,
+                    denominator=den_val,
+                    target=tgt_val,
+                    weight=float(weight) if weight else 0.0,
                     score=score_f,
                     weighted_score=wscore_f,
                     index=index_f
