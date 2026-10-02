@@ -115,10 +115,12 @@ urlpatterns = [
     path('ophthalmology/dashboard/', views.dashboard_ophthalmology, name='dashboard_ophthalmology'),
 
     
+    # Pautan untuk Modul Otorhinolaryngology (ENT NPC)
     path("otorhinolaryngology/", views.otorhinolaryngology, name="otorhinolaryngology"),
-    #path("gscolorectal_activities/", views.gscolorectal_activities, name="gscolorectal_activities"),
-    #path("add-gscolorectal-activity/", views.add_gscolorectal_activity, name="add_gscolorectal_activity"),
-    #path("fraternity/gscolorectal/form/<int:activity_id>/", views.form_gscolorectal, name="form_gscolorectal"),
+    path("otorhinolaryngology/activities/", views.otorhinolaryngology_activities, name="otorhinolaryngology_activities"),
+    path("otorhinolaryngology/activities/add/", views.add_otorhinolaryngology_activity, name="add_otorhinolaryngology_activity"),
+    path("otorhinolaryngology/form/<int:activity_id>/", views.form_otorhinolaryngology, name="form_otorhinolaryngology"),
+    path("otorhinolaryngology/dashboard/", views.dashboard_otorhinolaryngology, name="dashboard_otorhinolaryngology"),
 
     # Pautan untuk Modul Plastic & Reconstructive Surgery
     path("plastic_reconstructive/", views.plastic_reconstructive, name="plastic_reconstructive"),
