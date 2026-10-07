@@ -3937,9 +3937,238 @@ def dashboard_cardiothoracic(request):
     }
     return render(request, "accounts/dashboard_cardiothoracic.html", context)
 
+# =============================================
+# OBSTETRICS & GYNAECOLOGY (O&G Cx Ca)
+# =============================================
 @login_required
 def obstetrics_gynaecology(request):
     return render(request, 'accounts/obstetrics_gynaecology.html')
+
+@login_required
+def obstetrics_gynaecology_activities(request):
+    year = datetime.now().year
+    activities = SurgeryActivity.objects.filter(
+        fraternity="Obstetrics & Gynaecology",
+        year=year
+    ).annotate(
+        period_order=Case(
+            When(period='Jan-Jun', then=1),
+            When(period='Jul-Dec', then=2),
+            default=3,
+            output_field=IntegerField()
+        )
+    ).order_by('period_order')
+    
+    return render(request, 'accounts/obstetrics_gynaecology_activities.html', {
+        'activities': activities,
+        'year': year,
+    })
+
+@login_required
+def add_obstetrics_gynaecology_activity(request):
+    profile = getattr(request.user, 'profile', None)
+    if not request.user.is_superuser and (not profile or profile.bidang_pembedahan != 'OBSTETRICS & GYNAECOLOGY'):
+        messages.error(request, "You do not have permission to add this activity.")
+        return redirect('obstetrics_gynaecology_activities')
+
+    current_year = datetime.now().year
+    existing = SurgeryActivity.objects.filter(
+        fraternity="Obstetrics & Gynaecology",
+        year=current_year
+    ).count()
+
+    if existing == 0:
+        period = "Jan-Jun"
+    elif existing == 1:
+        period = "Jul-Dec"
+    else:
+        messages.error(request, "The activities for this year are already complete.")
+        return redirect('obstetrics_gynaecology_activities')
+
+    activity, created = SurgeryActivity.objects.get_or_create(
+        fraternity="Obstetrics & Gynaecology",
+        year=current_year,
+        period=period,
+        defaults={'status': 'not_started'}
+    )
+    activity.users.add(request.user)
+    messages.success(request, f"Activity {period} {current_year} created successfully!")
+    return redirect('obstetrics_gynaecology_activities')
+
+@login_required
+def form_obstetrics_gynaecology(request, activity_id):
+    profile = getattr(request.user, 'profile', None)
+    if not request.user.is_superuser and (not profile or profile.bidang_pembedahan != 'OBSTETRICS & GYNAECOLOGY'):
+        messages.error(request, "You do not have permission to access this form.")
+        return redirect('obstetrics_gynaecology_activities')
+
+    activity = get_object_or_404(SurgeryActivity, id=activity_id)
+
+    # Parameter Diekstrak dari Excel O&G Cx Ca Final
+    structure_domains = [
+        "Governance & Policy: Availability of Public Awareness and Education Modules / Implementation of National Immunisation & Screening Protocols / Active Cancer Registry (NCR) Reporting Structure",
+        "Facilities: Multi-Agency Outreach Collaboration Readiness / Availability of Cervical Cancer Screening Kits (HPV & Pap Smear) / Tertiary Diagnostic and Therapeutic Capacity Readiness",
+        "Equipment: Availability of Community Outreach & Self-Sampling Kits / Screening Consumables (HPV & Pap Smear) / Colposcopy and Gynae-Oncology Surgical Sets",
+        "Workforce: Multi-agency and Multi-disciplinary Community Workforce Engagement / Competency and Training of Primary Care Workforce / Availability of Multi-Disciplinary Team (MDT)",
+        "Budget/Financial: Availability of Dedicated Funding for Community HPV Vaccination and Screening / Financial Allocation for Outsourced Screening and Primary Care Services / Tertiary HPV Testing and Laboratory Services",
+        "Digitalization: Integration of Cervical Cancer Services into Mobile Data Platforms / Digital Tracking and Defaulter Tracing System in Primary Care / Comprehensive Hospital Clinical Data Systems and Cancer Registry Reporting"
+    ]
+    
+    process_domains = [
+        "Preoperative - Screening & Referral: Community-level identification and referral of high-risk populations / Initial Screening, Diagnosis, and Referral Access / Timely Specialist Appointment for Malignancy Assessment",
+        "Preoperative - Preoperative Care: Preoperative Care Applicability in Community Settings / Optimization of Preoperative Care and Timely Malignancy Operation",
+        "Preoperative - Communication & Consent: Community-level Discussion on Screening Results / Discussion on Screening Results and Next Steps / Specialist-led Shared Decision-Making and Informed Consent",
+        "Intraoperative - Surgical Safety: Intraoperative Surgical Safety Applicability in Community Settings / Primary Care / Full Adherence to Surgical Safety Protocols in Cervical Cancer Surgery",
+        "Intraoperative - Anaesthesia Safety: Applicability of Intraoperative Anesthesia Safety in Community Settings / Primary Care / Adherence to Anesthesia Safety Standards and High-Dependency Care",
+        "Postoperative - POMR: Community-level Support for Survivorship and Palliative Care / Shared Care Follow-up and Defaulter Tracing / Specialized Clinical Follow-up and Complication Management",
+        "Perioperative - Infection Prevention and Control (IPC): Community-level Data Reporting and Public Awareness Review / Primary Care Performance Review and KPI Monitoring / Hospital-Level Clinical Audit and Outcome Monitoring"
+    ]
+    
+    outcome_domains = [
+        "Access to Care: Achievement of High Community Awareness on Cervical Cancer Prevention / National Cervical Cancer Screening Coverage Target / Timely Tertiary Treatment Initiation",
+        "Surgical Safety: Minimal Community-Level Adverse Events and Effective Support / Achievement of Surgical Safety and Survival Standards",
+        "POMR (General)",
+        "Surgical Site Infection (General)",
+        "Patient Satisfaction: Achievement of High Patient Satisfaction and Support Accessibility / Effective Communication of Screening Results and Patient Empowerment / Achievement of Specialist-Led Shared Decision-Making",
+        "Equity: Achievement of Community Data Integrity and Surveillance Quality / Timely and Accurate Primary Care Reporting / Comprehensive Clinical Registry Compliance and Audit Closing"
+    ]
+
+    details = SurgeryActivityDetail.objects.filter(activity=activity)
+    detail_dict = {}
+    for d in details:
+        key = f"{d.category}_{d.domain}"
+        detail_dict[key] = {
+            "performances": d.performances_value,
+            "denominator": d.denominator,
+            "target": d.target,
+            "weight": d.weight,
+            "score": d.score,
+            "wscore": d.weighted_score,
+            "index": d.index
+        }
+
+    if request.method == "POST":
+        SurgeryActivityDetail.objects.filter(activity=activity).delete()
+
+        def save_category(category_name, domains):
+            total = Decimal('0')
+            for i, domain in enumerate(domains, start=1):
+                performances = request.POST.get(f"{category_name}_performances_{i}", "0")
+                denominator = request.POST.get(f"{category_name}_denominator_{i}", "0")
+                target = request.POST.get(f"{category_name}_target_{i}", "0")
+                weight = request.POST.get(f"{category_name}_weight_{i}", "0")
+                
+                try: num_val = float(performances) if performances else 0.0
+                except ValueError: num_val = 0.0
+                
+                try: den_val = float(denominator) if denominator else 0.0
+                except ValueError: den_val = 0.0
+                
+                try: tgt_val = float(target) if target else 0.0
+                except ValueError: tgt_val = 0.0
+
+                calc_divisor = den_val if den_val > 0 else tgt_val
+                score_f, wscore_f, index_f = calculate_domain_scores(num_val, calc_divisor, weight)
+
+                SurgeryActivityDetail.objects.create(
+                    activity=activity,
+                    category=category_name,
+                    domain=domain,
+                    performances_value=num_val,
+                    denominator=den_val,
+                    target=tgt_val,
+                    weight=float(weight) if weight else 0.0,
+                    score=score_f,
+                    weighted_score=wscore_f,
+                    index=index_f
+                )
+                total += Decimal(str(wscore_f))
+            return float(total.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))
+
+        activity.total_structure = save_category("structure", structure_domains)
+        activity.total_process = save_category("process", process_domains)
+        activity.total_outcome = save_category("outcome", outcome_domains)
+        activity.status = "completed"
+        activity.save()
+
+        messages.success(request, "Data has been successfully saved.")
+        return redirect('obstetrics_gynaecology_activities')
+
+    return render(request, "accounts/form_obstetrics_gynaecology.html", {
+        "activity": activity,
+        "structure_domains": structure_domains,
+        "process_domains": process_domains,
+        "outcome_domains": outcome_domains,
+        "detail_dict": detail_dict,
+    })
+
+@login_required
+def dashboard_obstetrics_gynaecology(request):
+    selected_year = int(request.GET.get('year', datetime.now().year))
+    selected_period = request.GET.get('period', 'Jan-Jun')
+
+    activities = SurgeryActivity.objects.filter(
+        fraternity="Obstetrics & Gynaecology",
+        status="completed",
+        year=selected_year,
+        period=selected_period
+    )
+
+    if not activities.exists():
+        context = {
+            "selected_year": selected_year,
+            "selected_period": selected_period,
+            "years": list(range(2020, datetime.now().year + 2)),
+            "total_structure_raw": 0,
+            "total_process_raw": 0,
+            "total_outcome_raw": 0,
+            "total_structure": 0,
+            "total_process": 0,
+            "total_outcome": 0,
+            "overall_index": 0,
+            "domain_rows": [],
+        }
+        return render(request, "accounts/dashboard_obstetrics_gynaecology.html", context)
+
+    activity = activities.first()
+    details = SurgeryActivityDetail.objects.filter(activity=activity)
+
+    total_structure_raw = min(float(sum(details.filter(category="structure").values_list("weighted_score", flat=True)) or 0.0), 1.0)
+    total_process_raw = min(float(sum(details.filter(category="process").values_list("weighted_score", flat=True)) or 0.0), 1.0)
+    total_outcome_raw = min(float(sum(details.filter(category="outcome").values_list("weighted_score", flat=True)) or 0.0), 1.0)
+
+    # Pemberat O&G Cx Ca: 50% Structure, 25% Process, 25% Outcome
+    total_structure = total_structure_raw * 0.50
+    total_process = total_process_raw * 0.25
+    total_outcome = total_outcome_raw * 0.25
+    overall_index = min(total_structure + total_process + total_outcome, 1.0)
+
+    domain_rows = [{
+        "category": d.category.capitalize(),
+        "domain": d.domain,
+        "performances_value": d.performances_value,
+        "denominator": d.denominator,
+        "target": d.target,
+        "weight": d.weight,
+        "score": d.score,
+        "weighted_score": d.weighted_score,
+        "index": d.index,
+    } for d in details]
+
+    context = {
+        "total_structure_raw": round(total_structure_raw, 2),
+        "total_process_raw": round(total_process_raw, 2),
+        "total_outcome_raw": round(total_outcome_raw, 2),
+        "total_structure": round(total_structure, 2),
+        "total_process": round(total_process, 2),
+        "total_outcome": round(total_outcome, 2),
+        "overall_index": round(overall_index, 2),
+        "domain_rows": domain_rows,
+        "years": list(range(2020, datetime.now().year + 2)),
+        "selected_year": selected_year,
+        "selected_period": selected_period,
+    }
+    return render(request, "accounts/dashboard_obstetrics_gynaecology.html", context)
 
 # =============================================
 # OTORHINOLARYNGOLOGY (ENT NPC)

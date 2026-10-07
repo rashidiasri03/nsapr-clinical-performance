@@ -102,10 +102,12 @@ urlpatterns = [
     path('cardiothoracic/form/<int:activity_id>/', views.form_cardiothoracic, name='form_cardiothoracic'),
     path('cardiothoracic/dashboard/', views.dashboard_cardiothoracic, name='dashboard_cardiothoracic'),
 
+    # Pautan untuk Modul Obstetrics & Gynaecology (O&G Cx Ca)
     path("obstetrics_gynaecology/", views.obstetrics_gynaecology, name="obstetrics_gynaecology"),
-    #path("gscolorectal_activities/", views.gscolorectal_activities, name="gscolorectal_activities"),
-    #path("add-gscolorectal-activity/", views.add_gscolorectal_activity, name="add_gscolorectal_activity"),
-    #path("fraternity/gscolorectal/form/<int:activity_id>/", views.form_gscolorectal, name="form_gscolorectal"),
+    path("obstetrics_gynaecology/activities/", views.obstetrics_gynaecology_activities, name="obstetrics_gynaecology_activities"),
+    path("obstetrics_gynaecology/activities/add/", views.add_obstetrics_gynaecology_activity, name="add_obstetrics_gynaecology_activity"),
+    path("obstetrics_gynaecology/form/<int:activity_id>/", views.form_obstetrics_gynaecology, name="form_obstetrics_gynaecology"),
+    path("obstetrics_gynaecology/dashboard/", views.dashboard_obstetrics_gynaecology, name="dashboard_obstetrics_gynaecology"),
 
     # Pautan untuk Modul Ophthalmology
     path('ophthalmology/', views.ophthalmology, name='ophthalmology'),

@@ -15,6 +15,7 @@ class Profile(models.Model):
         ('GENERAL SURGERY THORACIC', 'General Surgery Thoracic'),
         ('CARDIOTHORACIC SURGERY', 'Cardiothoracic Surgery'),
         ('UROLOGY', 'Urology'),
+        ('OBSTETRICS & GYNAECOLOGY', 'Obstetrics & Gynaecology'),
     ]
     
     user = models.OneToOneField(User, on_delete=models.CASCADE)
