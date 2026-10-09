@@ -4892,9 +4892,238 @@ def dashboard_plastic_reconstructive(request):
     }
     return render(request, "accounts/dashboard_plastic_reconstructive.html", context)
 
+# =============================================
+# ORAL MAXILLOFACIAL SURGERY (DENTAL ODO)
+# =============================================
 @login_required
 def oral_maxillofacial(request):
     return render(request, 'accounts/oral_maxillofacial.html')
+
+@login_required
+def oral_maxillofacial_activities(request):
+    year = datetime.now().year
+    activities = SurgeryActivity.objects.filter(
+        fraternity="Oral Maxillofacial Surgery",
+        year=year
+    ).annotate(
+        period_order=Case(
+            When(period='Jan-Jun', then=1),
+            When(period='Jul-Dec', then=2),
+            default=3,
+            output_field=IntegerField()
+        )
+    ).order_by('period_order')
+    
+    return render(request, 'accounts/oral_maxillofacial_activities.html', {
+        'activities': activities,
+        'year': year,
+    })
+
+@login_required
+def add_oral_maxillofacial_activity(request):
+    profile = getattr(request.user, 'profile', None)
+    if not request.user.is_superuser and (not profile or profile.bidang_pembedahan != 'ORAL MAXILLOFACIAL SURGERY'):
+        messages.error(request, "You do not have permission to add this activity.")
+        return redirect('oral_maxillofacial_activities')
+
+    current_year = datetime.now().year
+    existing = SurgeryActivity.objects.filter(
+        fraternity="Oral Maxillofacial Surgery",
+        year=current_year
+    ).count()
+
+    if existing == 0:
+        period = "Jan-Jun"
+    elif existing == 1:
+        period = "Jul-Dec"
+    else:
+        messages.error(request, "The activities for this year are already complete.")
+        return redirect('oral_maxillofacial_activities')
+
+    activity, created = SurgeryActivity.objects.get_or_create(
+        fraternity="Oral Maxillofacial Surgery",
+        year=current_year,
+        period=period,
+        defaults={'status': 'not_started'}
+    )
+    activity.users.add(request.user)
+    messages.success(request, f"Activity {period} {current_year} created successfully!")
+    return redirect('oral_maxillofacial_activities')
+
+@login_required
+def form_oral_maxillofacial(request, activity_id):
+    profile = getattr(request.user, 'profile', None)
+    if not request.user.is_superuser and (not profile or profile.bidang_pembedahan != 'ORAL MAXILLOFACIAL SURGERY'):
+        messages.error(request, "You do not have permission to access this form.")
+        return redirect('oral_maxillofacial_activities')
+
+    activity = get_object_or_404(SurgeryActivity, id=activity_id)
+
+    # Parameter Diekstrak dari Excel "NSAPR Dental Odo Final"
+    structure_domains = [
+        "Development on health training module for odontogenic infections / Development of updated SOP/referral pathway",
+        "Percentage of Oral Health Programs with Odontogenic Infections Component / % of DO underwent health training module / Establishment the norm requirement for OMFS beds",
+        "% of Dental Clinics having Oral Health Education Materials / Continuous Availability of Essential Antibiotics / All hospital with in-house OMFS must have imaging equipment",
+        "Involvement of Dental Public Health Specialists, Dental officers and Dental therapists in delivering oral health education / Availability of on-call OMFS specialist team",
+        "Availability of Dedicated Budget Allocation for Management of Odontogenic Infections / Percentage of Districts with Dedicated Annual Budget Allocation",
+        "Digitalization (General)"
+    ]
+    
+    process_domains = [
+        "Percentage of Odontogenic Infections with Documented Vital Signs and Risk Assessment / % of appropriate referral according to guideline",
+        "Percentage of Primary Care DO Trained in Preoperative Risk Assessment / % of airway involvement at time of presentation to OMFS",
+        "% of referrals accompanied by completed referral form",
+        "Intraoperative Surgical Safety Checklist Compliance Rate / % of full adherence to SSSL",
+        "Intraoperative - Anaesthesia Safety (General)",
+        "% of deaths due to odontogenic infection",
+        "% of rural/underserved community received oral health education on odontogenic infections"
+    ]
+    
+    outcome_domains = [
+        "Percentages of participants who are aware of the red flag symptoms of odontogenic infections",
+        "Percentages of participants who know where to seek early care for odontogenic infections",
+        "Mortality rate due to odontogenic infection",
+        "Surgical Site Infection (General)",
+        "% of patients reporting satisfaction with management and explanation given",
+        "Equity (General)"
+    ]
+
+    details = SurgeryActivityDetail.objects.filter(activity=activity)
+    detail_dict = {}
+    for d in details:
+        key = f"{d.category}_{d.domain}"
+        detail_dict[key] = {
+            "performances": d.performances_value,
+            "denominator": d.denominator,
+            "target": d.target,
+            "weight": d.weight,
+            "score": d.score,
+            "wscore": d.weighted_score,
+            "index": d.index
+        }
+
+    if request.method == "POST":
+        SurgeryActivityDetail.objects.filter(activity=activity).delete()
+
+        def save_category(category_name, domains):
+            total = Decimal('0')
+            for i, domain in enumerate(domains, start=1):
+                performances = request.POST.get(f"{category_name}_performances_{i}", "0")
+                denominator = request.POST.get(f"{category_name}_denominator_{i}", "0")
+                target = request.POST.get(f"{category_name}_target_{i}", "0")
+                weight = request.POST.get(f"{category_name}_weight_{i}", "0")
+                
+                try: num_val = float(performances) if performances else 0.0
+                except ValueError: num_val = 0.0
+                
+                try: den_val = float(denominator) if denominator else 0.0
+                except ValueError: den_val = 0.0
+                
+                try: tgt_val = float(target) if target else 0.0
+                except ValueError: tgt_val = 0.0
+
+                calc_divisor = den_val if den_val > 0 else tgt_val
+                score_f, wscore_f, index_f = calculate_domain_scores(num_val, calc_divisor, weight)
+
+                SurgeryActivityDetail.objects.create(
+                    activity=activity,
+                    category=category_name,
+                    domain=domain,
+                    performances_value=num_val,
+                    denominator=den_val,
+                    target=tgt_val,
+                    weight=float(weight) if weight else 0.0,
+                    score=score_f,
+                    weighted_score=wscore_f,
+                    index=index_f
+                )
+                total += Decimal(str(wscore_f))
+            return float(total.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))
+
+        activity.total_structure = save_category("structure", structure_domains)
+        activity.total_process = save_category("process", process_domains)
+        activity.total_outcome = save_category("outcome", outcome_domains)
+        activity.status = "completed"
+        activity.save()
+
+        messages.success(request, "Data has been successfully saved.")
+        return redirect('oral_maxillofacial_activities')
+
+    return render(request, "accounts/form_oral_maxillofacial.html", {
+        "activity": activity,
+        "structure_domains": structure_domains,
+        "process_domains": process_domains,
+        "outcome_domains": outcome_domains,
+        "detail_dict": detail_dict,
+    })
+
+@login_required
+def dashboard_oral_maxillofacial(request):
+    selected_year = int(request.GET.get('year', datetime.now().year))
+    selected_period = request.GET.get('period', 'Jan-Jun')
+
+    activities = SurgeryActivity.objects.filter(
+        fraternity="Oral Maxillofacial Surgery",
+        status="completed",
+        year=selected_year,
+        period=selected_period
+    )
+
+    if not activities.exists():
+        context = {
+            "selected_year": selected_year,
+            "selected_period": selected_period,
+            "years": list(range(2020, datetime.now().year + 2)),
+            "total_structure_raw": 0,
+            "total_process_raw": 0,
+            "total_outcome_raw": 0,
+            "total_structure": 0,
+            "total_process": 0,
+            "total_outcome": 0,
+            "overall_index": 0,
+            "domain_rows": [],
+        }
+        return render(request, "accounts/dashboard_oral_maxillofacial.html", context)
+
+    activity = activities.first()
+    details = SurgeryActivityDetail.objects.filter(activity=activity)
+
+    total_structure_raw = min(float(sum(details.filter(category="structure").values_list("weighted_score", flat=True)) or 0.0), 1.0)
+    total_process_raw = min(float(sum(details.filter(category="process").values_list("weighted_score", flat=True)) or 0.0), 1.0)
+    total_outcome_raw = min(float(sum(details.filter(category="outcome").values_list("weighted_score", flat=True)) or 0.0), 1.0)
+
+    # Pemberat Dental (Odo): 50% Structure, 30% Process, 20% Outcome
+    total_structure = total_structure_raw * 0.50
+    total_process = total_process_raw * 0.30
+    total_outcome = total_outcome_raw * 0.20
+    overall_index = min(total_structure + total_process + total_outcome, 1.0)
+
+    domain_rows = [{
+        "category": d.category.capitalize(),
+        "domain": d.domain,
+        "performances_value": d.performances_value,
+        "denominator": d.denominator,
+        "target": d.target,
+        "weight": d.weight,
+        "score": d.score,
+        "weighted_score": d.weighted_score,
+        "index": d.index,
+    } for d in details]
+
+    context = {
+        "total_structure_raw": round(total_structure_raw, 2),
+        "total_process_raw": round(total_process_raw, 2),
+        "total_outcome_raw": round(total_outcome_raw, 2),
+        "total_structure": round(total_structure, 2),
+        "total_process": round(total_process, 2),
+        "total_outcome": round(total_outcome, 2),
+        "overall_index": round(overall_index, 2),
+        "domain_rows": domain_rows,
+        "years": list(range(2020, datetime.now().year + 2)),
+        "selected_year": selected_year,
+        "selected_period": selected_period,
+    }
+    return render(request, "accounts/dashboard_oral_maxillofacial.html", context)
 
 @login_required
 def public_health(request):

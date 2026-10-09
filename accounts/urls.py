@@ -139,10 +139,12 @@ urlpatterns = [
     path("emergency-trauma/form/<int:activity_id>/", views.form_emergency_trauma, name="form_emergency_trauma"),
     path("emergency-trauma/dashboard/", views.dashboard_emergency_trauma, name="dashboard_emergency_trauma"),
 
+    # Pautan untuk Modul Oral Maxillofacial Surgery (Dental)
     path("oral_maxillofacial/", views.oral_maxillofacial, name="oral_maxillofacial"),
-    #path("gscolorectal_activities/", views.gscolorectal_activities, name="gscolorectal_activities"),
-    #path("add-gscolorectal-activity/", views.add_gscolorectal_activity, name="add_gscolorectal_activity"),
-    #path("fraternity/gscolorectal/form/<int:activity_id>/", views.form_gscolorectal, name="form_gscolorectal"),
+    path("oral_maxillofacial/activities/", views.oral_maxillofacial_activities, name="oral_maxillofacial_activities"),
+    path("oral_maxillofacial/activities/add/", views.add_oral_maxillofacial_activity, name="add_oral_maxillofacial_activity"),
+    path("oral_maxillofacial/form/<int:activity_id>/", views.form_oral_maxillofacial, name="form_oral_maxillofacial"),
+    path("oral_maxillofacial/dashboard/", views.dashboard_oral_maxillofacial, name="dashboard_oral_maxillofacial"),
 
     path("public_health/", views.public_health, name="public_health"),
     #path("gscolorectal_activities/", views.gscolorectal_activities, name="gscolorectal_activities"),
