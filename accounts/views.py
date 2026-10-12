@@ -2017,30 +2017,47 @@ def form_gsvascular(request, activity_id):
 
     activity = get_object_or_404(SurgeryActivity, id=activity_id)
 
+    # Parameter Diekstrak dari Excel NSAPR Vasc PVD Final (Diasingkan mengikut baris)
     structure_domains = [
-        "Number of FTE consultant vascular surgeons (Ensures adequate specialist capacity for managing complex vascular surgical cases)",
-        "Dedicated vascular operating theatre (Provides a safe and equipped environment for open and endovascular procedures)",
-        "Availability of endovascular intervention suite (Enables minimally invasive treatment of vascular conditions with imaging support)",
-        "Duplex ultrasound availability (Supports non-invasive diagnosis and surveillance of vascular disease)",
-        "Hybrid theatre or catheterisation lab access (Facilitates combined open and endovascular procedures in a single setting)",
-        "Availability of vascular trained scrub nurses and theatre staff (Ensures safe intraoperative support for vascular surgical procedures)",
-        "Clinical protocols for common vascular emergencies (Standardizes management of acute limb ischaemia, ruptured aneurysm and major haemorrhage)",
-        "Access to vascular imaging — CT angiography, MR angiography (Supports accurate pre-operative planning and diagnosis of vascular conditions)"
+        "National awareness programme at national level once a year (SC.1)",
+        "Establishing a diabetic foot clinic at primary care level at every state (16 states) - together with wound clinic (SP.1)",
+        "National level checklist for Diabetic foot mgt, using the 2018 CPG to incorporate inside their policy (SP.1)",
+        "Credentialing and Privileging for all vascular specialists involved management of vascular cases (SH.1)",
+        "Mobile screening unit in every state (16 states) (SC.2)",
+        "Wound Care clinic/centres with facilities for wound dressing and debridement (SP.2)",
+        "Angiosuite under vascular surgical unit in each vascular centre (SH.2)",
+        "Hand held doppler available in all Klinik Kesihatan (SP.3)",
+        "Diagnostic equipment (TcPo2 machine), Plasmaplethismograph (PPG) and high end Ultrasound machine in every vascular centre - 4? (SH.3)",
+        "Community nurse in mobile unit trained for PAD screening (SC.4)",
+        "2 Nurses trained in wound care (Post Basic) in each wound care clinic in each state (16 states) (SP.4)",
+        "2 vascular consultant in each vascular centre - 4 (SH.4)",
+        "Specific allocation for management of PAD with wound care (SP.5)",
+        "Specific allocation for PAD (SH.5)",
+        "Digital patient records, referral logs (SP.6)",
+        "PAD/Wound care registries (SH.6)"
     ]
+    
     process_domains = [
-        "Percentage of vascular patients with documented pre-operative risk assessment (Tracks completeness of evaluation before vascular surgery)",
-        "MDT review rate for complex vascular cases (Measures proportion of complex cases discussed in a multidisciplinary team setting)",
-        "Adherence to surgical safety checklist for vascular procedures (Tracks compliance with WHO safety protocols during vascular operations)",
-        "Percentage of elective AAA repairs meeting size threshold criteria (Monitors appropriateness of patient selection for elective intervention)",
-        "Time from admission to theatre for acute limb ischaemia (Measures responsiveness of the vascular surgical service for emergencies)",
-        "Percentage of post-operative review documented (Ensures patients are assessed and clinical findings recorded after vascular surgery)"
+        "Screening for PAD (PC.1.1)",
+        "Direct referral system from primary care to vascular centre (PP.1.1)",
+        "Respond to referrals with a management plan within 24 hours (Both in pt and outpt) (PH.1.1)",
+        "Basic investigations, optimization of pre operative condition and initiation of pre op assessment ie chest x ray, ECG and blood investigation (PP.1.2)",
+        "Preoperative anaesthetic review for all GA and regional PAD patients (both - EM/ EL) (PH.1.2)",
+        "Shared decision-making, consent by the primary team (vascular) (minimum MO) with operative risks discussion - vascular centre (PH.1.3)",
+        "Intraoperative - Surgical Safety (PH.2.1)",
+        "Intraoperative - Anaesthesia Safety (PH.2.2)",
+        "POMR Reporting (PH.3)",
+        "Adherence to antibiotic protocols (empirical) according to guideline (NAG 2024) (PH.4)"
     ]
+    
     outcome_domains = [
-        "30-day mortality rate for major vascular surgery (Rate of deaths within 30 days of open or endovascular vascular intervention)",
-        "Major amputation rate (Proportion of patients requiring limb amputation following vascular surgical management)",
-        "Graft patency rate at 12 months (Proportion of vascular grafts remaining patent one year after surgical or endovascular repair)",
-        "Post-operative complication rate (Rate of adverse events including bleeding, wound infection and graft complications)",
-        "Readmission rate within 30 days (Proportion of patients requiring hospital readmission within 30 days of vascular surgery)"
+        "Respond to referrals with a management plan within 24 hours (Both in pt and outpt) (OH.1)",
+        "Major surgical error (wrong limb operation) - Incident reporting, MPSG (OH.2)",
+        "Quarterly audit of POMR (OH.3)",
+        "Stump wound (BKA/AKA) infection rates (OH.4)",
+        "PAD patients return to premorbid function (OP.5)",
+        "No of aduan yang berasas (OH.5)",
+        "CLTI patients receiving surgical intervention within 1 week of admission (OH.6)"
     ]
 
     details = SurgeryActivityDetail.objects.filter(activity=activity)
@@ -2049,6 +2066,7 @@ def form_gsvascular(request, activity_id):
         key = f"{d.category}_{d.domain}"
         detail_dict[key] = {
             "performances": d.performances_value,
+            "denominator": d.denominator,
             "target": d.target,
             "weight": d.weight,
             "score": d.score,
@@ -2063,16 +2081,30 @@ def form_gsvascular(request, activity_id):
             total = Decimal('0')
             for i, domain in enumerate(domains, start=1):
                 performances = request.POST.get(f"{category_name}_performances_{i}", "0")
+                denominator = request.POST.get(f"{category_name}_denominator_{i}", "0")
                 target = request.POST.get(f"{category_name}_target_{i}", "0")
                 weight = request.POST.get(f"{category_name}_weight_{i}", "0")
-                score_f, wscore_f, index_f = calculate_domain_scores(performances, target, weight)
+                
+                try: num_val = float(performances) if performances else 0.0
+                except ValueError: num_val = 0.0
+                
+                try: den_val = float(denominator) if denominator else 0.0
+                except ValueError: den_val = 0.0
+                
+                try: tgt_val = float(target) if target else 0.0
+                except ValueError: tgt_val = 0.0
+
+                calc_divisor = den_val if den_val > 0 else tgt_val
+                score_f, wscore_f, index_f = calculate_domain_scores(num_val, calc_divisor, weight)
+
                 SurgeryActivityDetail.objects.create(
                     activity=activity,
                     category=category_name,
                     domain=domain,
-                    performances_value=int(performances) if performances else 0,
-                    target=int(target) if target else 0,
-                    weight=float(weight) if weight else 0,
+                    performances_value=num_val,
+                    denominator=den_val,
+                    target=tgt_val,
+                    weight=float(weight) if weight else 0.0,
                     score=score_f,
                     weighted_score=wscore_f,
                     index=index_f
@@ -2083,7 +2115,7 @@ def form_gsvascular(request, activity_id):
         activity.total_structure = save_category("structure", structure_domains)
         activity.total_process = save_category("process", process_domains)
         activity.total_outcome = save_category("outcome", outcome_domains)
-        activity.status = "done"
+        activity.status = "completed"
         activity.save()
 
         messages.success(request, "Data has been successfully saved.")
@@ -2105,7 +2137,7 @@ def dashboard_gsvascular(request):
 
     activities = SurgeryActivity.objects.filter(
         fraternity="General Surgery Vascular",
-        status="done",
+        status="completed",
         year=selected_year,
         period=selected_period
     )
@@ -2123,42 +2155,33 @@ def dashboard_gsvascular(request):
             "total_outcome": 0,
             "overall_index": 0,
             "domain_rows": [],
-            "bar_labels": "[]",
-            "bar_values": "[]",
         }
         return render(request, "accounts/dashboard_gsvascular.html", context)
 
     activity = activities.first()
     details = SurgeryActivityDetail.objects.filter(activity=activity)
 
-    total_structure_raw = sum(details.filter(category="structure").values_list("weighted_score", flat=True)) or 0.0
-    total_process_raw = sum(details.filter(category="process").values_list("weighted_score", flat=True)) or 0.0
-    total_outcome_raw = sum(details.filter(category="outcome").values_list("weighted_score", flat=True)) or 0.0
+    total_structure_raw = min(float(sum(details.filter(category="structure").values_list("weighted_score", flat=True)) or 0.0), 1.0)
+    total_process_raw = min(float(sum(details.filter(category="process").values_list("weighted_score", flat=True)) or 0.0), 1.0)
+    total_outcome_raw = min(float(sum(details.filter(category="outcome").values_list("weighted_score", flat=True)) or 0.0), 1.0)
 
-    total_structure_raw = min(float(total_structure_raw), 1.0)
-    total_process_raw = min(float(total_process_raw), 1.0)
-    total_outcome_raw = min(float(total_outcome_raw), 1.0)
-
+    # Pemberat GS Vascular (PVD): 30% Structure, 40% Process, 30% Outcome
     total_structure = total_structure_raw * 0.3
     total_process = total_process_raw * 0.4
     total_outcome = total_outcome_raw * 0.3
-
     overall_index = min(total_structure + total_process + total_outcome, 1.0)
 
-    domain_rows = []
-    for d in details:
-        domain_rows.append({
-            "category": d.category.capitalize(),
-            "domain": d.domain,
-            "performances_value": d.performances_value,
-            "target": d.target,
-            "weight": d.weight,
-            "score": d.score,
-            "weighted_score": d.weighted_score,
-            "index": d.index,
-        })
-
-    years = list(range(2020, datetime.now().year + 2))
+    domain_rows = [{
+        "category": d.category.capitalize(),
+        "domain": d.domain,
+        "performances_value": d.performances_value,
+        "denominator": d.denominator,
+        "target": d.target,
+        "weight": d.weight,
+        "score": d.score,
+        "weighted_score": d.weighted_score,
+        "index": d.index,
+    } for d in details]
 
     context = {
         "total_structure_raw": round(total_structure_raw, 2),
@@ -2169,13 +2192,10 @@ def dashboard_gsvascular(request):
         "total_outcome": round(total_outcome, 2),
         "overall_index": round(overall_index, 2),
         "domain_rows": domain_rows,
-        "years": years,
+        "years": list(range(2020, datetime.now().year + 2)),
         "selected_year": selected_year,
         "selected_period": selected_period,
-        "bar_labels": "[]",
-        "bar_values": "[]",
     }
-
     return render(request, "accounts/dashboard_gsvascular.html", context)
 
 # =============================================
